@@ -1,0 +1,85 @@
+/* Fondo de pantalla con imagen de imprenta */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: url('../assets/cmyk2.jpg') no-repeat center center/cover;
+}
+
+/* Caja del formulario */
+.auth-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px;
+}
+
+/* Títulos */
+.auth-box h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+/* Campos de entrada */
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 2px solid #bdc3c7;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+}
+
+.auth-input:focus {
+    border-color: #2980b9;
+    outline: none;
+}
+
+/* Botón de acción */
+.auth-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+}
+
+.auth-button:hover {
+    background-color: #0056b3;
+}
+
+.auth-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Mensajes de error o éxito */
+.auth-message {
+    margin-top: 10px;
+    font-size: 14px;
+    color: red;
+}
+
+/* Enlace de navegación */
+.auth-link {
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}

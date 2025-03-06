@@ -1,0 +1,64 @@
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    color: rgb(36, 36, 36);
+    
+    /* Hace que la imagen de fondo cubra toda la pantalla */
+    background-size:contain;
+    background-position: center;
+}
+
+/* Estilos para el título */
+.welcome-title {
+    font-size:4rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/*Estilos para el subtitulo */
+.subtitle {
+    font-size: 25px;
+    margin-top: 5px;
+    color: #f18989;
+    font-weight:bolder;
+}
+
+/* Contenedor de botones */
+.welcome-buttons {
+    display: flex;
+    gap: 20px; /* Espaciado entre botones */
+}
+
+/* Estilos para los botones */
+.welcome-button {
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+/* Botón de Iniciar Sesión */
+.btn-primary {
+    background-color: #ff0000;
+    color: rgb(255, 255, 255);
+}
+
+.btn-primary:hover {
+    background-color: #b32400;
+}
+
+/* Botón de Registrarse */
+.btn-secondary {
+    background-color: #ff0000;
+    color: rgb(255, 255, 255);
+}
+
+.btn-secondary:hover {
+    background-color: #b32400;
+}
