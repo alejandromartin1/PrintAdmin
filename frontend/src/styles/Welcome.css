@@ -22,7 +22,8 @@
 /*Estilos para el subtitulo */
 .subtitle {
     font-size: 25px;
-    margin-top: 5px;
+    margin-top: 4px;
+    margin-bottom: 20px;
     color: #f18989;
     font-weight:bolder;
 }

@@ -1,24 +1,55 @@
-/* Fondo de pantalla con imagen de imprenta */
+/* Contenedor principal */
 .auth-container {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: url('../assets/cmyk2.jpg') no-repeat center center/cover;
+    overflow: hidden;
+    position: relative;
+}
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    z-index: -1;
 }
 
-/* Caja del formulario */
-.auth-box {
+/* Contenedor para dividir logo y formulario */
+.auth-content {
+    display: flex;
     background: rgba(255, 255, 255, 0.95);
-    padding: 25px;
     border-radius: 10px;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    width: 350px;
+    overflow: hidden;
+    width: 700px;
 }
 
-/* Títulos */
+/* Sección del logo */
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    padding: 20px;
+    width: 50%;
+}
+
+.auth-logo img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+}
+
+/* Sección del formulario */
+.auth-box {
+    padding: 35px;
+    width: 50%;
+    text-align: center;
+}
+
+/* Estilos generales */
 .auth-box h2 {
     font-size: 24px;
     font-weight: 600;
@@ -26,7 +57,6 @@
     margin-bottom: 15px;
 }
 
-/* Campos de entrada */
 .auth-input {
     width: 100%;
     padding: 12px;
@@ -42,7 +72,7 @@
     outline: none;
 }
 
-/* Botón de acción */
+/* Botón */
 .auth-button {
     width: 100%;
     padding: 12px;
@@ -72,7 +102,7 @@
     color: red;
 }
 
-/* Enlace de navegación */
+/* Enlaces */
 .auth-link {
     margin-top: 10px;
     color: #007bff;
@@ -82,4 +112,21 @@
 
 .auth-link:hover {
     text-decoration: underline;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .auth-content {
+        flex-direction: column;
+        width: 90%;
+    }
+
+    .auth-logo {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .auth-box {
+        width: 100%;
+    }
 }
