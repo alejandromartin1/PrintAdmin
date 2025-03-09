@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/auth.css'; 
 import logo from '../assets/RUZ.png'; // Asegúrate de colocar tu logo en la carpeta correcta
 
@@ -9,6 +9,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         setLoading(true);
@@ -17,6 +18,9 @@ const Login = () => {
             const res = await axios.post('http://localhost:5000/login', { email, password });
             localStorage.setItem('token', res.data.token);
             setMessage("Inicio de sesión exitoso 🎉");
+            setTimeout(()=>{
+                navigate('/dashboard');
+            }, 1000);
         } catch (error) {
             setMessage(error.response?.data?.message || "Error al iniciar sesión");
         }
