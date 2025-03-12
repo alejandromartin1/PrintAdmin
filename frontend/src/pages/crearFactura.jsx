@@ -25,9 +25,9 @@ const CrearFactura = () => {
   return (
     <div className="Factura-container">
       <Sidebar/>
-        <div className='content'>
+        <div className='contentt'>
           <Navbar username="Alejandro Martin"/> 
-            <main className='main-content'>
+            <main className='main-contentt'>
               <div className='crear-factura'>
                 <h2>Crear Factura</h2>
                   {facturaCreada ? (
@@ -82,7 +82,7 @@ const CrearFactura = () => {
                   </div>
 
                     <div className="form-group">
-                      <button type="submit">Crear Factura</button>
+                      <button type="submit" className='buttons'>Crear Factura</button>
                     </div>
                   </form>
                 )}

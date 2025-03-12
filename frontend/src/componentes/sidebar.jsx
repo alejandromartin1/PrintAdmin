@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../styles/sidebar.css';
 import logo from '../assets/RUZ.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faHandHoldingDollar, faUsers, faFileInvoiceDollar, faChartLine, faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faHandHoldingDollar, faUsers, faFileInvoiceDollar, faChartLine, faAngleDown, faAngleUp, faFile, faFileCirclePlus } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
   const [isFacturaOpen, setIsFacturaOpen] = useState(false);
@@ -29,8 +29,8 @@ const Sidebar = () => {
           </div>
           {isFacturaOpen && (
             <ul className="submenu">
-              <li><Link to="/facturacion/crearFactura">Nueva Factura</Link></li>
-              <li><Link to="/facturacion/historial">Historial de Facturas</Link></li>
+              <li><Link to="/facturacion/crearFactura"><FontAwesomeIcon icon={faFileCirclePlus} />Nueva Factura</Link></li>
+              <li><Link to="/facturacion/historial"><FontAwesomeIcon icon={faFile} />Historial de Facturas</Link></li>
             </ul>
           )}
         </li>

@@ -11,6 +11,7 @@
     align-items: center;
 }
 
+
 .logo {
     width: 120px;
     height: auto;    
@@ -23,7 +24,7 @@
 
 .sidebar h2 {
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 .sidebar ul {
@@ -51,4 +52,35 @@
 }
 .sidebar a:hover {
     background-color: #b30000;
+}
+
+
+/* Ajusta el tamaño de las subopciones */
+.submenu li a {
+    font-size: 15px; /* Tamaño de letra más pequeño */
+    padding-left: 30px; /* Indentación para alinearlo bien */
+}
+
+/* Asegura que Facturación esté alineado correctamente */
+.factura div {
+    display: flex;
+    align-items: center;
+    padding: 10px; /* Igual que los otros elementos */
+    border-radius: 5px;
+    transition: background 0.3s;
+    color: white;
+    font-size: 18px;
+}
+
+.factura div:hover {
+    background-color: #b30000;
+}
+
+/* Ajustar el ícono de Facturación */
+.factura svg {
+    margin-right: 10px; /* Espacio igual que los otros íconos */
+}
+
+.factura .submenu {
+    padding-left: 15px; /* Da un margen a las opciones dentro del submenú */
 }
