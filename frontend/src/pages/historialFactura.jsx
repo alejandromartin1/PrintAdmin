@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import '../styles/historialFactura.css';
 import Sidebar from '../componentes/sidebar';
 import Navbar from '../componentes/navbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
+
 
 const HistorialFacturas = () => {
   // Estado para almacenar las facturas (puedes reemplazarlo con datos de una API)
@@ -17,6 +20,26 @@ const HistorialFacturas = () => {
     ];
     setFacturas(facturasEjemplo);
   }, []);
+
+      // Función para manejar la edición de facturas
+      const editarFactura = (id) => {
+        alert(`Editar factura con ID: ${id}`);
+    };
+
+    // Función para eliminar una factura
+    const eliminarFactura = (id) => {
+        const confirmacion = window.confirm(`¿Seguro que deseas eliminar la factura con ID ${id}?`);
+        if (confirmacion) {
+            alert(`Factura con ID ${id} eliminada.`);
+            // Aquí puedes agregar la lógica para eliminarla en la API
+        }
+    };
+
+    // Función para descargar la factura en PDF
+    const descargarPDF = (id) => {
+        alert(`Descargando factura con ID: ${id}`);
+        // Aquí puedes integrar la generación de PDF
+    };
 
   return (
     // Aquí va el código JSX
@@ -35,6 +58,7 @@ const HistorialFacturas = () => {
               <th>Cantidad</th>
               <th>Precio</th>
               <th>Fecha</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -47,6 +71,11 @@ const HistorialFacturas = () => {
                   <td>{factura.cantidad}</td>
                   <td>${factura.precio}</td>
                   <td>{factura.fecha}</td>
+                  <td>
+                    <button className='btn-eliminar' onClick={() => eliminarFactura(factura.id)}> <FontAwesomeIcon icon={faTrash} /> Eliminar</button>
+                    <button className='btn-editar' onClick={() => editarFactura(factura.id)}> <FontAwesomeIcon icon={faEdit} />Editar</button> 
+                    <button className='btn-pdf' onClick={() => descargarPDF(factura.id)}> <FontAwesomeIcon icon={faFilePdf} />Descargar Factura</button>
+                  </td>
                 </tr>
               ))
             ) : (
