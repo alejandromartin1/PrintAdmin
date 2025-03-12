@@ -1,0 +1,81 @@
+/* agregar estos estilos en tu archivo CSS */
+/* Contenedor principal */
+.factura-container {
+display: flex;
+height: 100vh;
+}
+
+/* Contenido Principal */
+.content {
+flex-grow: 1;
+margin-left: 250px; /* Separa el contenido del Sidebar */
+width: calc(100% - 250px);
+display: flex; 
+flex-direction: column;
+}
+
+.main-content {
+flex: 1;
+padding: 20px;
+background-color: #f9f9f9;  
+color: #464646;
+}
+
+.crear-factura {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+h2 {
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+a {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  color: #3498db;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

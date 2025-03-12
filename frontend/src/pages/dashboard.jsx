@@ -9,8 +9,8 @@ import { faCalendarDays, faUsers} from '@fortawesome/free-solid-svg-icons';
 const Dashboard = () => {
     return (
         <div className="dashboard-container">
-         <Sidebar/>
-         <div className='content'>
+        <Sidebar/>
+        <div className='content'>
             <Navbar username="Alejandro Martin"/> 
             <main className="main-content">
                 <h1>Bienvenid@</h1>
