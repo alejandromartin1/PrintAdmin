@@ -56,7 +56,7 @@ const Register = () => {
                         {loading ? "Cargando..." : "Registrarse"}
                     </button>
                     <p className="auth-message">{message}</p>
-                    <p>¿Ya tienes cuenta? <Link to="/login" className="auth-link">Inicia sesión</Link></p>
+                    <p className='message2'>¿Ya tienes cuenta? <Link to="/login" className="auth-link">Inicia sesión</Link></p>
                 </div>
             </div>
             <svg className="wave" viewBox="0 0 1440 320">

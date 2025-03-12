@@ -1,21 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Welcome from '../src/componentes/welcome';
-import Login from '../src/componentes/login';
-import Register from '../src/componentes/registro';
-import Dashboard from '../src/componentes/dashboard';
-
+import { BrowserRouter as Router } from 'react-router-dom';
+import AppRoutes from '../src/routes/AppRoutes.jsx';
 
 function App() {
     return (
         <Router>
-            <Routes>
-                <Route path="/" element={<Welcome />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-            </Routes>
+            <AppRoutes />
         </Router>
     );
 }
-
 export default App;

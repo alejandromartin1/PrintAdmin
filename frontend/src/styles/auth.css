@@ -2,10 +2,11 @@
 .auth-container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content:center;
     height: 100vh;
     overflow: hidden;
     position: relative;
+    
 }
 .wave {
     position: absolute;
@@ -23,7 +24,9 @@
     border-radius: 10px;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    width: 700px;
+    width: 750px;
+    position: relative;
+    top: -30px;
 }
 
 /* Sección del logo */
@@ -31,7 +34,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f8f9fa;
+    background-color: #fbfdff;
     padding: 20px;
     width: 50%;
 }
@@ -55,6 +58,7 @@
     font-weight: 600;
     color: #2c3e50;
     margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .auth-input {
@@ -72,6 +76,10 @@
     outline: none;
 }
 
+.message2{
+    font-family: 'Montserrat', sans-serif;
+}
+
 /* Botón */
 .auth-button {
     width: 100%;
@@ -84,6 +92,8 @@
     margin-top: 10px;
     font-size: 16px;
     transition: 0.3s ease-in-out;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .auth-button:hover {
@@ -97,17 +107,20 @@
 
 /* Mensajes de error o éxito */
 .auth-message {
-    margin-top: 10px;
+    margin-top: 9px;
     font-size: 14px;
     color: red;
+    
 }
 
 /* Enlaces */
 .auth-link {
     margin-top: 10px;
-    color: #007bff;
+    color: #419dff;
     text-decoration: none;
     font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+
 }
 
 .auth-link:hover {

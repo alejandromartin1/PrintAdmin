@@ -52,9 +52,9 @@ const Grafic = () => {
         <div className="income-chart-container">
             {/* Botones para cambiar el período */}
             <div className="period-selector">
-                <button onClick={() => handleChangePeriod('diario')}>Diario</button>
-                <button onClick={() => handleChangePeriod('semanal')}>Semanal</button>
-                <button onClick={() => handleChangePeriod('mensual')}>Mensual</button>
+                <button onClick={() => handleChangePeriod('diario')} className={period === 'diario' ? 'active' : ''}>Diario</button>
+                <button onClick={() => handleChangePeriod('semanal')}className={period === 'semanal' ? 'active' : ''}>Semanal</button>
+                <button onClick={() => handleChangePeriod('mensual')}className={period === 'mensual' ? 'active' : ''}>Mensual</button>
             </div>
 
             {/* Renderizamos el gráfico con los datos del período seleccionado */}

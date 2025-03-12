@@ -4,34 +4,20 @@
     height: 100vh;
 }
 
-/* Sidebar */
-.sidebar {
-    width: 250px;
-    background-color: #ff3578;
-    color: white;
-    padding: 20px;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar li {
-    margin: 15px 0;
-}
-
-.sidebar a {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-}
-
 /* Contenido Principal */
+.content {
+    flex-grow: 1;
+    margin-left: 250px; /* Separa el contenido del Sidebar */
+    width: calc(100% - 250px);
+    display: flex;
+    flex-direction: column;
+}
+
 .main-content {
     flex: 1;
     padding: 20px;
-    background-color: #f9f9f9;  /* Fondo claro para el contenido */
+    background-color: #f9f9f9;  
+    color: #464646;
 }
 
 .stats {
@@ -41,12 +27,41 @@
 }
 
 .stat-box {
-    background: linear-gradient(145deg, #ff0000, #991313); /* Transición de colores azules */
     color: white;
     padding: 20px;
     border-radius: 8px;
     text-align: center;
     width: 150px;
+}
+
+.stat-box.diario {
+    background: linear-gradient(145deg, #ff6347, #ff4500);  
+}
+
+.stat-box.semanal {
+    background: linear-gradient(145deg, #b832cd, #72228b);  
+}
+
+.stat-box.mensual {
+    background: linear-gradient(145deg, #ff1ecb, #b4468f); 
+}
+.stat-box.clientes {
+    background: linear-gradient(145deg, #fae634, #ffce0b); 
+}
+
+.stat-box h3 {
+    display: flex;
+    align-items: center; /* Alinea el icono y el texto en la misma línea */
+    gap: 10px; /* Espacio entre el icono y el texto */
+}
+
+.stat-box h3 .fa {
+    margin-right: 8px; /* Esto da un margen entre el icono y el texto */
+}
+
+.number {
+    font-size: 24px;
+    font-weight: bold;
 }
 
 /* Diseño del gráfico */
@@ -65,19 +80,24 @@
 }
 
 .period-selector button {
-    background-color: #fa4444;
-    color: white;
-    border: none;
+    background-color: #ffffff;
+    color: #333;
+    border: 2px solid #f3f3f3;
+    border-radius: 12px;
     padding: 10px 20px;
-    margin: 0 10px;
-    font-size: 16px;
-    border-radius: 5px;
+    margin: 0 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .period-selector button:hover {
-    background-color: #b30000;  /* Cambio de color al pasar el mouse */
+    background-color: #ddd;
+}
+
+.period-selector button.active {
+    background-color: #ef5a5a;  /* Color de fondo para el botón activo */
+    color: white;                /* Color del texto del botón activo */
+    border-color: #ff6262;      /* Borde del botón activo */
 }
 
 /* Estilo para el gráfico */

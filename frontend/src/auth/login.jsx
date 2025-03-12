@@ -53,7 +53,7 @@ const Login = () => {
                 {loading ? "Cargando..." : "Iniciar Sesión"}
             </button>
             <p className="auth-message">{message}</p>
-            <p>¿No tienes cuenta? <Link to="/register" className="auth-link">Regístrate</Link></p>
+            <p className='message2'>¿No tienes cuenta? <Link to="/register" className="auth-link">Regístrate</Link></p>
         </div>
     </div>
     <svg className="wave" viewBox="0 0 1440 320">
