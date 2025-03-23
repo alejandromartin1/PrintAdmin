@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/historialFactura.css';
-import Sidebar from '../componentes/sidebar';
-import Navbar from '../componentes/navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
@@ -44,9 +42,7 @@ const HistorialFacturas = () => {
   return (
     // Aquí va el código JSX
     <div className='historial-container'>
-    <Sidebar/>
       <div className='content'>
-        <Navbar username="Alejandro Martin"/>
       <div className="historial-facturas">
         <h2>Historial de Facturas</h2>
         <table>

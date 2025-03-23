@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/crearFactura.css';
 import { Link } from 'react-router-dom';
-import Sidebar from '../componentes/sidebar';
-import Navbar from '../componentes/navbar';
 
 
 const CrearFactura = () => {
@@ -24,9 +22,7 @@ const CrearFactura = () => {
 
   return (
     <div className="Factura-container">
-      <Sidebar/>
         <div className='contentt'>
-          <Navbar username="Alejandro Martin"/> 
             <main className='main-contentt'>
               <div className='crear-factura'>
                 <h2>Crear Factura</h2>

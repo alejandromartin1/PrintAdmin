@@ -1,13 +1,12 @@
-/* Contenedor principal */
+/* Dashboard */
 .dashboard-container {
     display: flex;
     height: 100vh;
+    margin-left: 250px; /* Separa el contenido del Sidebar */
 }
 
-/* Contenido Principal */
 .content {
     flex-grow: 1;
-    margin-left: 250px; /* Separa el contenido del Sidebar */
     width: calc(100% - 250px);
     display: flex;
     flex-direction: column;
@@ -16,9 +15,11 @@
 .main-content {
     flex: 1;
     padding: 20px;
-    background-color: #f9f9f9;  
+    background-color: #ffffff;  
     color: #464646;
+    margin-top: 40px; /* Respeta la altura del navbar */
 }
+
 
 .stats {
     display: flex;
@@ -35,28 +36,25 @@
 }
 
 .stat-box.diario {
-    background: linear-gradient(145deg, #ff6347, #ff4500);  
+    background: linear-gradient(145deg, #ff6347, #ff4500);
 }
 
 .stat-box.semanal {
-    background: linear-gradient(145deg, #b832cd, #72228b);  
+    background: linear-gradient(145deg, #b832cd, #72228b);
 }
 
 .stat-box.mensual {
-    background: linear-gradient(145deg, #ff1ecb, #b4468f); 
+    background: linear-gradient(145deg, #ff1ecb, #b4468f);
 }
+
 .stat-box.clientes {
-    background: linear-gradient(145deg, #fae634, #ffce0b); 
+    background: linear-gradient(145deg, #fae634, #ffce0b);
 }
 
 .stat-box h3 {
     display: flex;
-    align-items: center; /* Alinea el icono y el texto en la misma línea */
-    gap: 10px; /* Espacio entre el icono y el texto */
-}
-
-.stat-box h3 .fa {
-    margin-right: 8px; /* Esto da un margen entre el icono y el texto */
+    align-items: center;
+    gap: 10px;
 }
 
 .number {
@@ -64,13 +62,12 @@
     font-weight: bold;
 }
 
-/* Diseño del gráfico */
 .income-chart-container {
-    background-color: white; /* Fondo blanco para el gráfico */
-    border-radius: 10px;     /* Bordes redondeados */
-    padding: 20px;           /* Espaciado interno */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-    margin-top: 30px;        /* Espaciado superior */
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
 }
 
 .period-selector {
@@ -95,14 +92,13 @@
 }
 
 .period-selector button.active {
-    background-color: #ef5a5a;  /* Color de fondo para el botón activo */
-    color: white;                /* Color del texto del botón activo */
-    border-color: #ff6262;      /* Borde del botón activo */
+    background-color: #ef5a5a;
+    color: white;
+    border-color: #ff6262;
 }
 
-/* Estilo para el gráfico */
 .recharts-wrapper {
-    border-radius: 10px;    /* Bordes redondeados del gráfico */
-    background: #ffffff;       /* Fondo blanco */
-    padding: 20px;          /* Padding adicional */
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 20px;
 }

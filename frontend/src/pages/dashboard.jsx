@@ -1,17 +1,13 @@
 import React from 'react';
 import '../styles/dashboard.css';
 import Grafic from '../componentes/grafics';
-import Sidebar from '../componentes/sidebar';
-import Navbar from '../componentes/navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays, faUsers} from '@fortawesome/free-solid-svg-icons';
 
 const Dashboard = () => {
     return (
         <div className="dashboard-container">
-        <Sidebar/>
         <div className='content'>
-            <Navbar username="Alejandro Martin"/> 
             <main className="main-content">
                 <h1>Bienvenid@</h1>
                 <div className='income-chart-container'>
