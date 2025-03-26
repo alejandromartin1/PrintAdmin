@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import VistaPrevia from "../pages/vistapreviacoti";
 import { generarPDF } from "../utils/pdfGenerator";
-import '../styles/cotizaciones.css';
+import '../styles/cotizaciones.css'; 
 import logo from '../assets/RUZ.png';
 
 const Cotizacion = () => {
