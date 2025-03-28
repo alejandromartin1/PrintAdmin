@@ -1,8 +1,7 @@
-// Cotizacion.js
 import React, { useState } from "react";
 import VistaPrevia from "../pages/vistapreviacoti";
 import { generarPDF } from "../utils/pdfGenerator";
-import '../styles/cotizaciones.css'; 
+import '../styles/cotizaciones.css';
 import logo from '../assets/RUZ.png';
 
 const Cotizacion = () => {
@@ -20,22 +19,21 @@ const Cotizacion = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setProducto({
+    const newProducto = {
       ...producto,
       [name]: type === "checkbox" ? checked : value,
-    });
+    };
+
+    // Calcula el total en tiempo real
+    let subtotal = parseFloat(newProducto.cantidad || 0) * parseFloat(newProducto.precioUnitario || 0);
+    let iva = newProducto.iva ? subtotal * 0.16 : 0; 
+    let total = subtotal + iva;
+
+    setProducto({ ...newProducto, subtotal: subtotal.toFixed(2), total: total.toFixed(2) });
   };
 
   const handleClienteChange = (e) => {
     setCliente(e.target.value); 
-  };
-
-  const calcularTotal = () => {
-    let subtotal =
-      parseFloat(producto.cantidad || 0) * parseFloat(producto.precioUnitario || 0);
-    let iva = producto.iva ? subtotal * 0.16 : 0; 
-    let total = subtotal + iva;
-    setProducto({ ...producto, subtotal: subtotal.toFixed(2), total: total.toFixed(2) });
   };
 
   const agregarProducto = () => {
@@ -72,6 +70,7 @@ const Cotizacion = () => {
     }); // Borra el formulario de producto
     setCliente(""); // Borra el cliente
   };
+
   return (
     <div className="cotizacion-container">
       <h2 className="cotizacion-title">Cotización</h2>
@@ -82,14 +81,18 @@ const Cotizacion = () => {
       <label className="cotizacion-label">Concepto:</label>
       <input className="cotizacion-input" type="text" name="concepto" value={producto.concepto} onChange={handleChange} />
 
+      <div className="cotizacion-row">
+    <div className="cotizacion-field">
       <label className="cotizacion-label">Cantidad:</label>
-      <input className="cotizacion-input" type="number" name="cantidad" value={producto.cantidad} onChange={handleChange} onBlur={calcularTotal} />
-
+      <input className="cotizacion-input" type="number" name="cantidad" value={producto.cantidad} onChange={handleChange} />
+    </div>
+    <div className="cotizacion-field">
       <label className="cotizacion-label">Precio Unitario:</label>
-      <input className="cotizacion-input" type="number" name="precioUnitario" value={producto.precioUnitario} onChange={handleChange} onBlur={calcularTotal} />
-
+      <input className="cotizacion-input" type="number" name="precioUnitario" value={producto.precioUnitario} onChange={handleChange} />
+    </div>
+   </div>
       <label className="cotizacion-checkbox-label">
-        <input className="cotizacion-checkbox" type="checkbox" name="iva" checked={producto.iva} onChange={handleChange} onBlur={calcularTotal} /> Incluir IVA (16%)
+        <input className="cotizacion-checkbox" type="checkbox" name="iva" checked={producto.iva} onChange={handleChange}/> Incluir IVA (16%)
       </label>
 
       <h3 className="cotizacion-total">Total: ${producto.total}</h3>

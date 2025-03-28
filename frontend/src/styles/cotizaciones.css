@@ -1,11 +1,11 @@
 .cotizacion-container {
-  max-width: 850px;
+  max-width: 800px;
   margin: 0 auto; 
   padding: 25px;
   background-color: #ffffff;
   border-radius: 15px; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
-  margin-top: 45px;
+  margin-top: 50px;
 }
 
 .cotizacion-title {
@@ -33,6 +33,22 @@
   box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
 }
 
+.cotizacion-row {
+  display: flex;
+  gap: 20px; /* Espacio entre los inputs */
+  align-items: center;
+}
+
+.cotizacion-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Ajusta el tamaño para que ambos sean proporcionales */
+}
+
+.cotizacion-input {
+  width: 100%; /* Hace que ambos inputs ocupen todo el ancho disponible */
+}
+
 .cotizacion-checkbox-label {
   font-weight: 600;
   color: #e74c3c; /* Rojo más oscuro para resaltar */
@@ -50,7 +66,6 @@
   color: #e52b2b;
   font-weight: 600; /* Acentúa el total */
 }
-
 
 .cotizacion-buttons-container {
   display: flex;
@@ -83,8 +98,6 @@
   outline: 2px solid #db3434; /* Añadir borde para mejorar accesibilidad */
   outline-offset: 4px;
 }
-
-
 
 /* Responsividad para pantallas pequeñas */
 @media (max-width: 600px) {

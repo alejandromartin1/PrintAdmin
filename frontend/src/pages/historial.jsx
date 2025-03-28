@@ -3,10 +3,10 @@ import '../styles/historialFactura.css';
 
 
 
-const HistorialFacturas = () => {
+const HistorialClientes = () => {
     <div>
       <h1>hola</h1>
     </div>
 };
 
-export default HistorialFacturas;
+export default HistorialClientes;

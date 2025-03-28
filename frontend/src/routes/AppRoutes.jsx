@@ -4,11 +4,12 @@ import Welcome from "../auth/welcome";
 import Login from "../auth/login";
 import Register from "../auth/registro";
 import Dashboard from "../pages/dashboard";
-import CrearFactura from "../pages/agregarCliente";
-import HistorialFacturas from "../pages/historial";
+import AgregarCliente from "../pages/agregarCliente";
+import HistorialCliente from "../pages/historial";
 import Cotizacion from "../pages/cotizaciones";
 import Pendiente from "../pages/pendientes";
 import Inventario from "../pages/inventario";
+import EntradasYSalidas from "../pages/entradasYsalidas";
 
 function AppRoutes() {
   return (
@@ -20,11 +21,12 @@ function AppRoutes() {
       {/* Agrupamos las rutas dentro de Layout para que Sidebar y Navbar aparezcan */}
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/clientes/agregarCliente" element={<CrearFactura />} />
-        <Route path="/clientes/historial" element={<HistorialFacturas />} />
+        <Route path="/clientes/agregarCliente" element={<AgregarCliente />} />
+        <Route path="/clientes/historial" element={<HistorialCliente />} />
         <Route path="/cotizacion" element={<Cotizacion />} />
         <Route path="/pendientes" element={<Pendiente />} />
         <Route path="/inventario" element={<Inventario />} />
+        <Route path="/EntradasYSalidas" element={<EntradasYSalidas />} />
       </Route>
     </Routes>
   );
