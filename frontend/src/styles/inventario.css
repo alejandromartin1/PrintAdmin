@@ -1,9 +1,199 @@
 .inventario-container {
-    max-width: 1000px;
+    max-width: 990px;
     margin: 0 auto; 
     padding: 20px;
     background-color: #ffffff;
     border-radius: 15px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
     margin-top: 45px;
+}
+
+.inventario-title{
+    text-align: center;
+    font-size: 36px; 
+    color: #333; 
+    font-weight: 600;
+}
+
+/* modal */
+
+/* Fondo oscuro del modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor del modal */
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 420px;
+    text-align: center;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+/* Animación del modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Botones del modal */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: 10px;
+    margin-top: 15px;
+}
+
+.btn-cancel {
+    background: gray;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-confirm {
+    background: red;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.btn-edit {
+    background: orange;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-decrease {
+    background: rgb(0, 0, 0);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-agregar {
+    background: green;
+    color: white;
+    border: none;
+    padding: 7px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.btn-delete:hover,
+.btn-confirm:hover {
+    background: darkred;
+}
+
+.btn-cancel:hover {
+    background: darkgray;
+}
+
+/* Estado: Disponible */
+.estado.disponible {
+    background-color: green;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Estado: Pocas unidades */
+.estado.pocas-unidades {
+    background-color: orange;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Estado: Agotado */
+.estado.agotado {
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* modal de agregar y editar */
+.modal2 {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔹 Estilos del formulario */
+.modal2 form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal2 label {
+    text-align: left;
+    font-weight: bold;
+}
+
+.modal2 input, .modal textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* 🔹 Botones */
+.modal-buttonss {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+}
+
+.btn-cancelar { background: gray; color: white; border-radius: 10px; padding: 7px 10px; border: none;}
+.btn-cancelar:hover {
+    background: darkgray;
+}
+.btn-confirmar { background: green; color: white; border-radius: 10px; padding: 7px 10px; border: none;}
+.btn-confirmar:hover {
+    background: rgba(0, 128, 0, 0.73);
 }
