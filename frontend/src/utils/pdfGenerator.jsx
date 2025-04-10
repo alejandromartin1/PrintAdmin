@@ -29,7 +29,7 @@ export const generarPDF = (cotizaciones, cliente, logo) => {
     doc.setFont('helvetica', 'bold');
     doc.text("Cotización", 105, 70, { align: 'center' });
   
-    // Fecha y cliente
+    // Fecha y clienteÑ
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);  // Gris claro
