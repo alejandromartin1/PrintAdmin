@@ -1,84 +1,122 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/inventario.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Inventario = () => {
-    const [products, setProducts] = useState([
-        { id: 1, producto: "Laptop", cantidad: 10, precio: 1200, descripcion: "Laptop HP 15.6 pulgadas", fechaIngreso: "2021-10-01" },
-        { id: 2, producto: "Mouse", cantidad: 30, precio: 25, descripcion: "Mouse inalámbrico", fechaIngreso: "2021-10-01" },
-        { id: 3, producto: "Teclado", cantidad: 20, precio: 50, descripcion: "Teclado inalámbrico", fechaIngreso: "2021-10-01" },
-        { id: 4, producto: "Monitor", cantidad: 11, precio: 200, descripcion: "Monitor 24 pulgadas", fechaIngreso: "2021-10-01" },
-        { id: 5, producto: "Audífonos", cantidad: 15, precio: 30, descripcion: "Audífonos con micrófono", fechaIngreso: "2021-10-01" },
-    ]);
-
+    const [products, setProducts] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [modalType, setModalType] = useState(""); // "agregar", "editar" o "eliminar"
+    const [modalType, setModalType] = useState("");
     const [formData, setFormData] = useState({
         producto: "",
         cantidad: "",
-        precio: "",
         descripcion: "",
-        fechaIngreso: new Date().toISOString().split("T")[0],
     });
 
-    // Abrir modal
-    const handleShowModal = (type, product) => {
+    // Cargar productos desde la API
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const response = await axios.get("http://localhost:5000/api/inventario");
+            setProducts(response.data);
+        } catch (error) {
+            console.error("Error al obtener productos:", error);
+        }
+    };
+
+    const handleShowModal = (type, product = null) => {
         setModalType(type);
         setSelectedProduct(product);
         setFormData(product || {
             producto: "",
             cantidad: "",
-            precio: "",
             descripcion: "",
         });
         setShowModal(true);
     };
 
-    // Cerrar modal
     const handleCloseModal = () => {
         setShowModal(false);
         setSelectedProduct(null);
     };
 
-    // Manejar cambios en el formulario
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSave = () => {
-        const nuevaFecha = new Date().toISOString().split("T")[0]; // Obtiene la fecha en formato "YYYY-MM-DD"
-    
-        if (modalType === "editar") {
-            setProducts(products.map((p) => (p.id === selectedProduct.id ? { ...p, ...formData } : p)));
-        } else {
-            setProducts([...products, { id: Date.now(), ...formData, fechaIngreso: nuevaFecha }]);
+    const handleSave = async () => {
+        try {
+            if (modalType === "editar") {
+                await axios.put(`http://localhost:5000/api/inventario/${selectedProduct.id}`, {
+                    producto: formData.producto,
+                    cantidad: formData.cantidad,
+                    descripcion: formData.descripcion
+                });
+            } else {
+                await axios.post("http://localhost:5000/api/inventario", {
+                    producto: formData.producto,
+                    cantidad: formData.cantidad,
+                    descripcion: formData.descripcion,
+                });
+            }
+            fetchProducts();
+            handleCloseModal();
+        } catch (error) {
+            console.error("Error al guardar producto:", error);
         }
-        handleCloseModal();
     };
 
-    // Eliminar producto
-    const handleDelete = () => {
-        setProducts(products.filter((p) => p.id !== selectedProduct.id));
-        handleCloseModal();
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`http://localhost:5000/api/inventario/${selectedProduct.id}`);
+            fetchProducts();
+            handleCloseModal();
+        } catch (error) {
+            console.error("Error al eliminar producto:", error);
+        }
     };
 
-    // Determinar estado según cantidad
     const determinarEstado = (cantidad) => {
-        if (cantidad > 10) return "Disponible";
-        if (cantidad > 0) return "Pocas unidades";
+        const num = parseInt(cantidad, 10);
+        if (num > 10) return "Disponible";
+        if (num > 0) return "Pocas unidades";
         return "Agotado";
     };
 
-    // Disminuir cantidad y actualizar estado
-    const handleDecrease = (id) => {
-        setProducts(products.map((product) =>
-            product.id === id
-                ? { ...product, cantidad: Math.max(0, product.cantidad - 1) }
-                : product
-        ));
+    const handleDecrease = async (id) => {
+        // Buscar el producto de la lista de productos
+        const product = products.find(p => p.id === id);
+        const nuevaCantidad = Math.max(0, product.cantidad - 1);  // Aseguramos que la cantidad no sea negativa
+    
+        try {
+            // Llamada a la API para disminuir la cantidad
+            const response = await axios.put(`http://localhost:5000/api/inventario/disminuir/${id}`, {
+                cantidad: nuevaCantidad,  // Enviamos solo la cantidad al backend
+            });
+    
+            console.log("Respuesta del servidor:", response.data); // Agrega un log para depurar
+    
+            if (response.data.producto) {
+                // Si la respuesta es exitosa, actualizamos el producto en el frontend
+                setProducts((prevProducts) =>
+                    prevProducts.map((p) =>
+                        p.id === id ? { ...p, cantidad: nuevaCantidad } : p
+                    )
+                );
+            } else {
+                console.error("Error en la respuesta del servidor:", response.data.error);
+            }
+    
+        } catch (error) {
+            console.error("Error al disminuir cantidad:", error);
+        }
     };
+    
 
     return (
         <div className="inventario-container">
@@ -92,7 +130,6 @@ const Inventario = () => {
                         <tr>
                             <th>Producto</th>
                             <th>Cantidad</th>
-                            <th>Precio</th>
                             <th>Descripción</th>
                             <th>Estado</th>
                             <th>Fecha Ingreso</th>
@@ -104,14 +141,13 @@ const Inventario = () => {
                             <tr key={product.id}>
                                 <td>{product.producto}</td>
                                 <td>{product.cantidad}</td>
-                                <td>{product.precio}</td>
                                 <td>{product.descripcion}</td>
                                 <td>
                                     <span className={`estado ${determinarEstado(product.cantidad).toLowerCase().replace(/\s+/g, '-')}`}>
                                         {determinarEstado(product.cantidad)}
                                     </span>
                                 </td>
-                                <td>{product.fechaIngreso}</td>
+                                <td>{new Date(product.fecha_ingreso).toLocaleDateString("es-MX")}</td>
                                 <td>
                                     <button className="btn-delete" onClick={() => handleShowModal("eliminar", product)}>
                                         <FontAwesomeIcon icon={faTrash} /> Eliminar
@@ -157,15 +193,12 @@ const Inventario = () => {
                             <label>Cantidad:</label>
                             <input type="number" name="cantidad" value={formData.cantidad} onChange={handleChange} required />
 
-                            <label>Precio:</label>
-                            <input type="number" name="precio" value={formData.precio} onChange={handleChange} required />
-
                             <label>Descripción:</label>
                             <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} required />
 
                             <div className="modal-buttonss">
-                                <button className="btn-cancelar" onClick={handleCloseModal}>Cancelar</button>
-                                <button className="btn-confirmar" onClick={handleSave}>
+                                <button className="btn-cancelar" type="button" onClick={handleCloseModal}>Cancelar</button>
+                                <button className="btn-confirmar" type="button" onClick={handleSave}>
                                     {modalType === "editar" ? "Guardar Cambios" : "Agregar"}
                                 </button>
                             </div>
