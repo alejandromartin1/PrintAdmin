@@ -4,10 +4,14 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('./db');
+const inventarioRoutes = require('./routes/inventario');
+const clientesRoutes = require('./routes/clientes');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/api/inventario', inventarioRoutes);
+app.use(clientesRoutes);
 
 app.post('/register', async (req, res) => {
     console.log('Body recibido:', req.body); // Agrega esto
