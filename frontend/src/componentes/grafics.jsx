@@ -55,7 +55,7 @@ const Grafic = () => {
                 <button onClick={() => handleChangePeriod('diario')} className={period === 'diario' ? 'active' : ''}>Diario</button>
                 <button onClick={() => handleChangePeriod('semanal')}className={period === 'semanal' ? 'active' : ''}>Semanal</button>
                 <button onClick={() => handleChangePeriod('mensual')}className={period === 'mensual' ? 'active' : ''}>Mensual</button>
-            </div>
+        </div>
 
             {/* Renderizamos el gráfico con los datos del período seleccionado */}
             <ResponsiveContainer width="100%" height={300}>
