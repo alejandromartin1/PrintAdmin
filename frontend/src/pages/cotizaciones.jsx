@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import VistaPrevia from "../pages/vistapreviacoti";
 import { generarPDF } from "../utils/pdfGenerator";
@@ -17,7 +17,24 @@ const Cotizacion = () => {
     subtotal: "0.00",
   });
   const [cliente, setCliente] = useState("");  
+  const [clienteNombre, setClienteNombre] = useState("");
+  const [clientes, setClientes] = useState([]);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false); 
+
+
+  // Cargar la lista de clientes desde la API
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/clientes");
+        setClientes(response.data);
+      } catch (error) {
+        console.error("Error al cargar clientes:", error);
+      }
+    };
+    fetchClientes();
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -34,16 +51,13 @@ const Cotizacion = () => {
     setProducto({ ...newProducto, subtotal: subtotal.toFixed(2), total: total.toFixed(2) });
   };
 
-  const handleClienteChange = (e) => {
-    setCliente(e.target.value); 
-  };
 
 const agregarProducto = async () => {
-  if (!cliente) {
+  if (!cliente || !producto.cantidad || !producto.precioUnitario) {
     Swal.fire({
       icon: 'warning',
-      title: 'Cliente requerido',
-      text: 'Por favor, ingrese el ID del cliente antes de continuar.',
+      title: 'Campos incompletos',
+      text: 'Por favor, completa todos los campos del producto',
       confirmButtonColor: '#f0ad4e',
       confirmButtonText: 'Entendido'
     });
@@ -58,7 +72,17 @@ const agregarProducto = async () => {
     iva_porcentaje: producto.iva ? 16 : 0,
     total_final: parseFloat(producto.total)
   };
-
+  if (parseFloat(producto.cantidad) <= 0 || parseFloat(producto.precioUnitario) <= 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Valores inválidos',
+      text: 'La cantidad y el precio deben ser mayores a 0.',
+      confirmButtonColor: '#f0ad4e',
+      confirmButtonText: 'Entendido'
+    });
+    return;
+  }
+  
   const subtotal = nuevoProducto.cantidad * nuevoProducto.precio_unitario;
   const iva = producto.iva ? subtotal * 0.16 : 0;
   const total = subtotal + iva;
@@ -102,13 +126,12 @@ const agregarProducto = async () => {
   }
 };
 
-
   const toggleVistaPrevia = () => {
     setIsPreviewVisible(!isPreviewVisible); // Alterna entre true y false
   };
 
   const exportarPDF = () => {
-    generarPDF(cotizaciones, cliente, logo);
+    generarPDF(cotizaciones, clienteNombre, logo);
     // Después de exportar el PDF, reinicia los estados
     setCotizaciones([]); // Borra las cotizaciones
     setProducto({
@@ -120,6 +143,7 @@ const agregarProducto = async () => {
       subtotal: "0.00",
     }); // Borra el formulario de producto
     setCliente(""); // Borra el cliente
+    setClienteNombre("");
   };
 
   return (
@@ -127,7 +151,30 @@ const agregarProducto = async () => {
       <h2 className="cotizacion-title">Cotización</h2>
       
       <label className="cotizacion-label">Cliente:</label>
-      <input className="cotizacion-input" type="number" value={cliente} onChange={handleClienteChange} />
+      <select
+      className="cotizacion-input"
+      value={cliente}
+      onChange={(e) => {
+        const idSeleccionado = e.target.value;
+        const clienteSeleccionado = clientes.find(c => c.id.toString() === idSeleccionado);
+    
+        setCliente(idSeleccionado);
+    
+        if (clienteSeleccionado) {
+          setClienteNombre(`${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`);
+        } else {
+          setClienteNombre(""); // Evita error si no se encuentra el cliente
+        }
+      }}
+    >
+      <option value="" disabled>Seleccione un cliente</option>
+      {clientes.map((cli) => (
+        <option key={cli.id} value={cli.id}>
+          {cli.nombre} {cli.apellido}
+        </option>
+      ))}
+    </select>
+
 
       <label className="cotizacion-label">Concepto:</label>
       <input className="cotizacion-input" type="text" name="concepto" value={producto.concepto} onChange={handleChange} />

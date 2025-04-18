@@ -20,8 +20,10 @@ exports.addInventario = async (req, res) => {
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
+        console.error('Error en addInventario:', error); // <--- esto es clave
         res.status(500).json({ error: 'Error al agregar producto' });
     }
+    
 };
 
 exports.deleteInventario = async (req, res) => {
