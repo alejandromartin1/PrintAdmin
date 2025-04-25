@@ -14,7 +14,7 @@ const AgregarCliente = () => {
 
     const [modalType, setModalType] = useState("");
     const [selectedCliente, setSelectedCliente] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [setShowModal] = useState(false);
     const [showDeleteModal, setDeleteModal] = useState(false);
     const [showFormModal, setShowFormModal] = useState(false);
     const [clientes, setClientes] = useState([]);

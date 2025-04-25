@@ -1,76 +1,154 @@
-import { useState } from "react";
-import { Card, CardContent, Button, TextField } from "@mui/material";
-import "../styles/entradasysalidas.css";
+import React, { useState } from 'react';
+import '../styles/entradasysalidas.css';
 
-export default function EntriesAndExpenses() {
-  const [entries, setEntries] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-  const [newEntry, setNewEntry] = useState({ description: "", quantity: "", cost: "" });
-  const [newExpense, setNewExpense] = useState({ description: "", amount: "", reason: "" });
+const RegistroFinanzas = () => {
+  const [vista, setVista] = useState('entradas');
+  const [entradas, setEntradas] = useState([]);
+  const [salidas, setSalidas] = useState([]);
 
-  const handleAddEntry = () => {
-    if (!newEntry.description || !newEntry.quantity || !newEntry.cost) {
-      alert("Por favor, completa todos los campos de entrada.");
-      return;
-    }
+  const [nuevaEntrada, setNuevaEntrada] = useState({
+    cliente: '',
+    fecha: '',
+    concepto: '',
+    cantidad: '',
+    tipo_pago: 'completo',
+    abono: ''
+  });
 
-    setEntries([
-      ...entries,
-      { ...newEntry, id: Date.now(), date: new Date().toLocaleDateString(), quantity: parseFloat(newEntry.quantity), cost: parseFloat(newEntry.cost) }
-    ]);
-    setNewEntry({ description: "", quantity: "", cost: "" });
+  const [nuevaSalida, setNuevaSalida] = useState({
+    descripcion: '',
+    fecha: '',
+    cantidad: ''
+  });
+
+  const agregarEntrada = (e) => {
+    e.preventDefault();
+    const cantidad = parseFloat(nuevaEntrada.cantidad);
+    const abono = nuevaEntrada.tipo_pago === 'abono' ? parseFloat(nuevaEntrada.abono) : cantidad;
+    const saldo = cantidad - abono;
+
+    const entrada = {
+      id: Date.now(),
+      ...nuevaEntrada,
+      cantidad,
+      abono,
+      saldo
+    };
+
+    setEntradas([...entradas, entrada]);
+
+    setNuevaEntrada({
+      cliente: '',
+      fecha: '',
+      concepto: '',
+      cantidad: '',
+      tipo_pago: 'completo',
+      abono: ''
+    });
   };
 
-  const handleAddExpense = () => {
-    if (!newExpense.description || !newExpense.amount || !newExpense.reason) {
-      alert("Por favor, completa todos los campos de salida.");
-      return;
-    }
+  const agregarSalida = (e) => {
+    e.preventDefault();
+    const salida = {
+      id: Date.now(),
+      ...nuevaSalida,
+      cantidad: parseFloat(nuevaSalida.cantidad)
+    };
 
-    setExpenses([
-      ...expenses,
-      { ...newExpense, id: Date.now(), date: new Date().toLocaleDateString(), amount: parseFloat(newExpense.amount) }
-    ]);
-    setNewExpense({ description: "", amount: "", reason: "" });
+    setSalidas([...salidas, salida]);
+
+    setNuevaSalida({ descripcion: '', fecha: '', cantidad: '' });
   };
+
+  const pendientes = entradas.filter(e => e.saldo > 0);
 
   return (
-    <div className="container">
-      {/* Sección de Entradas */}
-      <Card sx={{ marginBottom: 3 }}>
-        <CardContent>
-          <h2>Entradas (Trabajos realizados)</h2>
-          <div className="form-group">
-            <TextField label="Descripción" variant="outlined" value={newEntry.description} onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })} />
-            <TextField label="Cantidad" type="number" variant="outlined" value={newEntry.quantity} onChange={(e) => setNewEntry({ ...newEntry, quantity: e.target.value })} />
-            <TextField label="Costo" type="number" variant="outlined" value={newEntry.cost} onChange={(e) => setNewEntry({ ...newEntry, cost: e.target.value })} />
-            <Button variant="contained" color="primary" onClick={handleAddEntry}>Agregar</Button>
-          </div>
-          <ul className="list">
-            {entries.map((entry) => (
-              <li key={entry.id} className="list-item">{entry.date} - {entry.description} - {entry.quantity} - ${entry.cost.toFixed(2)}</li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+    <div className="registro-container">
+      <h2>Registros de la Imprenta</h2>
 
-      {/* Sección de Salidas */}
-      <Card>
-        <CardContent>
-          <h2>Salidas (Gastos del día)</h2>
-          <div className="form-group">
-            <TextField label="Descripción" variant="outlined" value={newExpense.description} onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })} />
-            <TextField label="Monto" type="number" variant="outlined" value={newExpense.amount} onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })} />
-            <TextField label="Motivo" variant="outlined" value={newExpense.reason} onChange={(e) => setNewExpense({ ...newExpense, reason: e.target.value })} />
-            <Button variant="contained" color="secondary" onClick={handleAddExpense}>Agregar</Button>
-          </div>
-          <ul className="list">
-            {expenses.map((expense) => (
-              <li key={expense.id} className="list-item">{expense.date} - {expense.description} - ${expense.amount.toFixed(2)} - {expense.reason}</li>
+      <div className="tabs">
+        <button className={vista === 'entradas' ? 'active' : ''} onClick={() => setVista('entradas')}>Entradas</button>
+        <button className={vista === 'salidas' ? 'active' : ''} onClick={() => setVista('salidas')}>Salidas</button>
+        <button className={vista === 'pendientes' ? 'active' : ''} onClick={() => setVista('pendientes')}>Pendientes</button>
+      </div>
+
+      <div className="vista">
+        {vista === 'entradas' && (
+          <>
+            <form onSubmit={agregarEntrada} className="formulario">
+              <h3>Agregar Entrada</h3>
+              <input type="text" placeholder="Cliente" value={nuevaEntrada.cliente} onChange={e => setNuevaEntrada({ ...nuevaEntrada, cliente: e.target.value })} required />
+              <input type="date" value={nuevaEntrada.fecha} onChange={e => setNuevaEntrada({ ...nuevaEntrada, fecha: e.target.value })} required />
+              <input type="text" placeholder="Concepto" value={nuevaEntrada.concepto} onChange={e => setNuevaEntrada({ ...nuevaEntrada, concepto: e.target.value })} required />
+              <input type="number" placeholder="Cantidad total" value={nuevaEntrada.cantidad} onChange={e => setNuevaEntrada({ ...nuevaEntrada, cantidad: e.target.value })} required />
+              
+              <select value={nuevaEntrada.tipo_pago} onChange={e => setNuevaEntrada({ ...nuevaEntrada, tipo_pago: e.target.value })}>
+                <option value="completo">Pago completo</option>
+                <option value="abono">Abono</option>
+              </select>
+
+              {nuevaEntrada.tipo_pago === 'abono' && (
+                <input type="number" placeholder="Cantidad abonada" value={nuevaEntrada.abono} onChange={e => setNuevaEntrada({ ...nuevaEntrada, abono: e.target.value })} required />
+              )}
+
+              <button type="submit">Agregar Entrada</button>
+            </form>
+
+            <div className="tabla">
+              <h3>Entradas</h3>
+              {entradas.map(e => (
+                <div key={e.id} className="card entrada">
+                  <p><strong>Cliente:</strong> {e.cliente}</p>
+                  <p><strong>Fecha:</strong> {e.fecha}</p>
+                  <p><strong>Concepto:</strong> {e.concepto}</p>
+                  <p><strong>Total:</strong> ${e.cantidad}</p>
+                  <p><strong>Pago:</strong> {e.tipo_pago}</p>
+                  <p><strong>Abono:</strong> ${e.abono}</p>
+                  <p><strong>Saldo:</strong> ${e.saldo}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {vista === 'salidas' && (
+          <>
+            <form onSubmit={agregarSalida} className="formulario">
+              <h3>Agregar Salida</h3>
+              <input type="text" placeholder="Descripción" value={nuevaSalida.descripcion} onChange={e => setNuevaSalida({ ...nuevaSalida, descripcion: e.target.value })} required />
+              <input type="date" value={nuevaSalida.fecha} onChange={e => setNuevaSalida({ ...nuevaSalida, fecha: e.target.value })} required />
+              <input type="number" placeholder="Cantidad" value={nuevaSalida.cantidad} onChange={e => setNuevaSalida({ ...nuevaSalida, cantidad: e.target.value })} required />
+              <button type="submit">Agregar Salida</button>
+            </form>
+
+            <div className="tabla">
+              <h3>Salidas</h3>
+              {salidas.map(s => (
+                <div key={s.id} className="card salida">
+                  <p><strong>Descripción:</strong> {s.descripcion}</p>
+                  <p><strong>Fecha:</strong> {s.fecha}</p>
+                  <p><strong>Cantidad:</strong> ${s.cantidad}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {vista === 'pendientes' && (
+          <div className="tabla">
+            <h3>Trabajos Pendientes</h3>
+            {pendientes.length === 0 ? <p>No hay pendientes.</p> : pendientes.map(p => (
+              <div key={p.id} className="card pendiente">
+                <p><strong>Cliente:</strong> {p.cliente}</p>
+                <p><strong>Concepto:</strong> {p.concepto}</p>
+                <p><strong>Saldo pendiente:</strong> <span className="saldo">${p.saldo}</span></p>
+              </div>
             ))}
-          </ul>
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default RegistroFinanzas;

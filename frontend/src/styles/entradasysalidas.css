@@ -1,27 +1,74 @@
-.container {
-    max-width: 600px;
-    margin: auto;
-    padding: 20px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .list-item {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    background: #f0f0f0;
-  }
-  
+.registro-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  padding: 10px 20px;
+  border: none;
+  background: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: #3498db;
+  color: white;
+}
+
+.tabla {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.card {
+  padding: 15px;
+  border-left: 5px solid #ccc;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.entrada { border-left-color: #27ae60; }
+.salida { border-left-color: #e74c3c; }
+.pendiente { border-left-color: #f39c12; }
+
+.saldo {
+  color: red;
+  font-weight: bold;
+}
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.formulario input,
+.formulario select,
+.formulario button {
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.formulario button {
+  background: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.formulario button:hover {
+  background: #2980b9;
+}
