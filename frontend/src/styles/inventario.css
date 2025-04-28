@@ -1,11 +1,13 @@
 .inventario-container {
-    max-width: 990px;
-    margin: 0 auto; 
-    padding: 20px;
+    max-width: 1200px;
     background-color: #ffffff;
     border-radius: 15px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
     margin-top: 45px;
+    margin: 7rem auto;
+    padding: 3rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 300px; /* Espacio para el sidebar */
 }
 
 .inventario-title{

@@ -7,6 +7,5 @@ router.get('/api/clientes', clienteController.getClientes);
 router.post('/api/cliente', clienteController.addCliente);
 router.delete('/api/cliente/:id', clienteController.deleteCliente);
 router.put('/api/cliente/:id', clienteController.updateCliente);
-
-// Exportamos las rutas para usarlas en el servidor principal
+router.get('/api/clientes/:id', clienteController.getClienteById);
 module.exports = router;

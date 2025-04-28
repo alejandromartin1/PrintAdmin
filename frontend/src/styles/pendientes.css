@@ -1,0 +1,268 @@
+.pendientes__container {
+    max-width: 1200px;
+    margin: 5rem auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 280px; /* Espacio para el sidebar */
+  }
+  
+  /* Estado de carga */
+  .pendientes__container--loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+  }
+  
+  .pendientes__loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .pendientes__spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #db3434;
+    width: 40px;
+    height: 40px;
+    animation: pendientes-spin 1s linear infinite;
+  }
+  
+  @keyframes pendientes-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .pendientes__loading-text {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+  }
+  
+  /* Encabezado */
+  .pendientes__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .headerpendientes{
+    margin-bottom: 23px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .pendientes__title {
+    font-size: 2rem;
+    color: #e74c3c;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .pendientes__refresh-button {
+    background-color: #db3434;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .pendientes__refresh-button:hover {
+    background-color: #b92929;
+    transform: translateY(-1px);
+  }
+  
+  .pendientes__refresh-button:disabled {
+    background-color: #f5bcbc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .pendientes__refresh-icon {
+    animation: pendientes-spin 1s linear infinite;
+  }
+  
+  /* Mensajes de error */
+  .pendientes__error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #f5c6cb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .pendientes__error-icon {
+    font-size: 1.2rem;
+  }
+  
+  /* Estado vacío */
+  .pendientes__empty-state {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    color: #6c757d;
+  }
+  
+  .pendientes__empty-text {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  
+  /* Grid de eventos */
+  .pendientes__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  /* Tarjeta de evento */
+  .pendientes__card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .pendientes__card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Encabezado de tarjeta */
+  .pendientes__card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #ac1c1c;
+  }
+  
+  .pendientes__client-name {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #292929;
+    font-weight: 600;
+  }
+  
+  .pendientes__status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .pendientes__status--pendiente {
+    background-color: #dd4545;
+    color: #ffffff;
+  }
+  
+  .pendientes__status--pagado {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  /* Cuerpo de tarjeta */
+  .pendientes__card-body {
+    margin-bottom: 1rem;
+    flex-grow: 1;
+  }
+  
+  .pendientes__detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .pendientes__detail-label {
+    font-weight: 600;
+    color: #707475;
+    font-size: 0.9rem;
+  }
+  
+  .pendientes__detail-value {
+    color: #000000;
+    font-size: 0.9rem;
+  }
+
+
+  /* Sección financiera */
+  .pendientes__financial-section {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin: 1rem 0;
+  }
+  
+  .pendientes__amount {
+    font-weight: bold;
+    color: #363636;
+  }
+  
+  .pendientes__payment {
+    color: #09a31b;
+    font-weight: 500;
+  }
+  
+  .pendientes__balance {
+    font-weight: bold;
+  }
+  
+  .pendientes__balance--pending {
+    color: #e74c3c;
+  }
+  
+  .pendientes__balance--paid {
+    color: #03ff6c;
+  }
+  
+  /* Pie de tarjeta (acciones) */
+  .pendientes__card-footer {
+    margin-top: auto;
+  }
+  
+  .pendientes__action-button {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+  
+  .pendientes__action-button--primary {
+    background-color: #028739;
+    color: white;
+    font-weight: 500;
+  }
+  
+  .pendientes__action-button--primary:hover {
+    background-color: #015825;
+    transform: translateY(-1px);
+  }
+  
+  .pendientes__action-button--primary:disabled {
+    background-color: #359608;
+    cursor: not-allowed;
+    transform: none;
+  }

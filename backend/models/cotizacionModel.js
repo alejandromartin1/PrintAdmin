@@ -75,10 +75,79 @@ const Cotizacion = {
       [id_cliente]
     );
     return cotizaciones.rows;
+  },
+
+// Eliminar una cotización y sus detalles
+deleteCotizacion: async (id) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Eliminar los detalles de la cotización
+    await client.query('DELETE FROM detalle_cotizacion WHERE id_cotizacion = $1', [id]);
+
+    // 2. Eliminar la cotización
+    const result = await client.query('DELETE FROM cotizaciones WHERE id = $1 RETURNING *', [id]);
+
+    await client.query('COMMIT');
+
+    return result.rows[0]; // Devuelve la cotización eliminada
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
   }
+},
+
+// Editar una cotización (y opcionalmente sus detalles)
+updateCotizacion: async (id, id_cliente, conceptos, subtotal, iva, total) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Actualizar cotización principal
+    const result = await client.query(
+      'UPDATE cotizaciones SET id_cliente = $1, subtotal = $2, iva = $3, total = $4 WHERE id = $5 RETURNING *',
+      [id_cliente, subtotal, iva, total, id]
+    );
+
+    // 2. Eliminar conceptos actuales
+    await client.query('DELETE FROM detalle_cotizacion WHERE id_cotizacion = $1', [id]);
+
+    // 3. Insertar nuevos conceptos
+    for (const item of conceptos) {
+      const { concepto, cantidad, precio_unitario, iva_porcentaje } = item;
+
+      const totalSinIva = cantidad * precio_unitario;
+      const ivaCalculado = (iva_porcentaje !== undefined && iva_porcentaje !== null)
+        ? (totalSinIva * iva_porcentaje) / 100
+        : (totalSinIva * 16) / 100;
+      const totalFinal = totalSinIva + ivaCalculado;
+
+      await client.query(
+        'INSERT INTO detalle_cotizacion(id_cotizacion, concepto, cantidad, precio_unitario, iva_porcentaje, total_final) VALUES($1, $2, $3, $4, $5, $6)',
+        [
+          id,
+          concepto,
+          cantidad,
+          precio_unitario,
+          (iva_porcentaje !== undefined && iva_porcentaje !== null) ? iva_porcentaje : 16.0,
+          totalFinal
+        ]
+      );
+    }
+
+    await client.query('COMMIT');
+    return result.rows[0]; // Devuelve la cotización actualizada
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+},
+
 };
-
-
-
   
 module.exports = Cotizacion;

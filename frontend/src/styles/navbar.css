@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fafafa;
+    background-color: #ffffff;
     padding: 10px 20px;
     width: calc(100% - 250px); /* Ajuste según el tamaño del sidebar */
     color: #fb5151; 
@@ -13,13 +13,15 @@
     left: 250px; /* Debe coincidir con el margen izquierdo del contenido */
     z-index: 1002; /* Asegura que esté encima del sidebar */
     height: 70px; /* Ajusta la altura si es necesario */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
 }
 
 
 .search-bar {
     display: flex;
     align-items: center;
-    background-color: #f6f6f6;
+    background-color: #fafafa;
     padding: 8px;
     border-radius: 5px;
     width: 300px;

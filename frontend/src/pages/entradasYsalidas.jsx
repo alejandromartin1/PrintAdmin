@@ -1,154 +1,530 @@
-import React, { useState } from 'react';
-import '../styles/entradasysalidas.css';
+import "../styles/entradasysalidas.css";
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import Swal from "sweetalert2";
 
-const RegistroFinanzas = () => {
-  const [vista, setVista] = useState('entradas');
-  const [entradas, setEntradas] = useState([]);
-  const [salidas, setSalidas] = useState([]);
+const EntradasySalidas = () => {
+  const [clientes, setClientes] = useState([]);
+  const [trabajos, setTrabajos] = useState([]);
+  const [gastos, setGastos] = useState([]); 
+  const [activeTab, setActiveTab] = useState('entradas');
+  const [editingTrabajo, setEditingTrabajo] = useState(null);
+  const [editingGasto, setEditingGasto] = useState(null);
 
-  const [nuevaEntrada, setNuevaEntrada] = useState({
-    cliente: '',
+  const [nuevoTrabajo, setNuevoTrabajo] = useState({
+    cliente:'', 
     fecha: '',
     concepto: '',
-    cantidad: '',
-    tipo_pago: 'completo',
-    abono: ''
+    cantidad_total: '',
+    abono: '',
+    saldo: '',
+    estado: 'pendiente'
   });
 
-  const [nuevaSalida, setNuevaSalida] = useState({
+  const [nuevoGasto, setNuevoGasto] = useState({
     descripcion: '',
+    cantidad: '',
     fecha: '',
-    cantidad: ''
   });
 
-  const agregarEntrada = (e) => {
+  useEffect(() => {
+    if (activeTab === 'entradas') {
+      fetchEntradas();
+    } else {
+      fetchSalidas();
+    }
+    fetchClientes();
+  }, [activeTab]);
+
+  const fetchEntradas = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/entradas/todos');
+      setTrabajos(res.data);
+    } catch (error) {
+      console.error('Error al cargar entradas:', error);
+    }
+  };
+
+  const fetchSalidas = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/salidas/todos');
+      setGastos(res.data);
+    } catch (error) {
+      console.error('Error al cargar salidas:', error);
+    }
+  };
+
+  const fetchClientes = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/clientes');
+      setClientes(res.data);
+    } catch (error) {
+      console.error('Error al cargar clientes:', error);
+    }
+  };
+
+  const handleTrabajoChange = (e) => {
+    const { name, value } = e.target;
+    setNuevoTrabajo(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGastoChange = (e) => {
+    const { name, value } = e.target;
+    setNuevoGasto(prev => ({ ...prev, [name]: value }));
+  };
+
+  const agregarTrabajo = async (e) => {
     e.preventDefault();
-    const cantidad = parseFloat(nuevaEntrada.cantidad);
-    const abono = nuevaEntrada.tipo_pago === 'abono' ? parseFloat(nuevaEntrada.abono) : cantidad;
-    const saldo = cantidad - abono;
+    try {
+      await axios.post('http://localhost:5000/api/entradas/crear', {
+        id_cliente: nuevoTrabajo.cliente,
+        fecha: nuevoTrabajo.fecha,
+        concepto: nuevoTrabajo.concepto,
+        cantidad_total: nuevoTrabajo.cantidad_total,
+        abono: nuevoTrabajo.abono,
+        saldo: nuevoTrabajo.cantidad_total - nuevoTrabajo.abono,
+        estado: nuevoTrabajo.estado
+      });
 
-    const entrada = {
-      id: Date.now(),
-      ...nuevaEntrada,
-      cantidad,
-      abono,
-      saldo
-    };
+      await fetchEntradas();
+      setNuevoTrabajo({
+        cliente: '',
+        fecha: '',
+        concepto: '',
+        cantidad_total: '',
+        abono: '',
+        saldo: '',
+        estado: 'pendiente'
+      });
 
-    setEntradas([...entradas, entrada]);
+      Swal.fire('¡Éxito!', 'Trabajo registrado con éxito.', 'success');
+    } catch (error) {
+      console.error('Error al agregar trabajo:', error);
+      Swal.fire('Error', 'No se pudo registrar el trabajo.', 'error');
+    }
+  };
+  
+  const agregarGasto = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/api/salidas/crear', nuevoGasto);
+      await fetchSalidas();
+      setNuevoGasto({ fecha: '', descripcion: '', cantidad: '' });
+      Swal.fire('¡Éxito!', 'Gasto registrado con éxito.', 'success');
+    } catch (error) {
+      console.error('Error al agregar gasto:', error);
+      Swal.fire('Error', 'No se pudo registrar el gasto.', 'error');
+    }
+  };
 
-    setNuevaEntrada({
-      cliente: '',
-      fecha: '',
-      concepto: '',
-      cantidad: '',
-      tipo_pago: 'completo',
-      abono: ''
+  const editarTrabajo = (trabajo) => {
+    setEditingTrabajo(trabajo.id);
+    setNuevoTrabajo({
+      cliente: trabajo.id_cliente,
+      fecha: trabajo.fecha.split('T')[0],
+      concepto: trabajo.concepto,
+      cantidad_total: trabajo.cantidad_total,
+      abono: trabajo.abono,
+      saldo: trabajo.saldo,
+      estado: trabajo.estado
+    });
+  };
+  
+  const actualizarTrabajo = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`http://localhost:5000/api/entradas/editar/${editingTrabajo}`, {
+        id_cliente: nuevoTrabajo.cliente,
+        fecha: nuevoTrabajo.fecha,
+        concepto: nuevoTrabajo.concepto,
+        cantidad_total: nuevoTrabajo.cantidad_total,
+        abono: nuevoTrabajo.abono,
+        saldo: nuevoTrabajo.cantidad_total - nuevoTrabajo.abono,
+        estado: nuevoTrabajo.estado
+      });
+      await fetchEntradas();
+      setEditingTrabajo(null);
+      setNuevoTrabajo({
+        cliente: '',
+        fecha: '',
+        concepto: '',
+        cantidad_total: '',
+        abono: '',
+        saldo: '',
+        estado: 'pendiente'
+      });
+      Swal.fire('¡Actualizado!', 'Trabajo actualizado con éxito.', 'success');
+    } catch (error) {
+      console.error('Error al actualizar trabajo:', error);
+      Swal.fire('Error', 'No se pudo actualizar el trabajo.', 'error');
+    }
+  };
+
+  const eliminarTrabajo = async (id) => {
+    const confirm = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esto!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:5000/api/entradas/eliminar/${id}`);
+        await fetchEntradas();
+        Swal.fire('Eliminado', 'El trabajo fue eliminado.', 'success');
+      } catch (error) {
+        console.error('Error al eliminar trabajo:', error);
+        Swal.fire('Error', 'No se pudo eliminar el trabajo.', 'error');
+      }
+    }
+  };
+
+  const editarGasto = (gasto) => {
+    setEditingGasto(gasto.id);
+    setNuevoGasto({
+      descripcion: gasto.descripcion,
+      cantidad: gasto.cantidad,
+      fecha: gasto.fecha.split('T')[0]
     });
   };
 
-  const agregarSalida = (e) => {
+  const actualizarGasto = async (e) => {
     e.preventDefault();
-    const salida = {
-      id: Date.now(),
-      ...nuevaSalida,
-      cantidad: parseFloat(nuevaSalida.cantidad)
-    };
-
-    setSalidas([...salidas, salida]);
-
-    setNuevaSalida({ descripcion: '', fecha: '', cantidad: '' });
+    try {
+      await axios.put(`http://localhost:5000/api/salidas/editar/${editingGasto}`, nuevoGasto);
+      await fetchSalidas();
+      setEditingGasto(null);
+      setNuevoGasto({ fecha: '', descripcion: '', cantidad: '' });
+      Swal.fire('¡Actualizado!', 'Gasto actualizado correctamente.', 'success');
+    } catch (error) {
+      console.error('Error al actualizar gasto:', error);
+      Swal.fire('Error', 'No se pudo actualizar el gasto.', 'error');
+    }
   };
 
-  const pendientes = entradas.filter(e => e.saldo > 0);
+  const eliminarGasto = async (id) => {
+    const confirm = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción no se puede deshacer.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:5000/api/salidas/eliminar/${id}`);
+        await fetchSalidas();
+        Swal.fire('Eliminado', 'El gasto fue eliminado.', 'success');
+      } catch (error) {
+        console.error('Error al eliminar gasto:', error);
+        Swal.fire('Error', 'No se pudo eliminar el gasto.', 'error');
+      }
+    }
+  };
 
   return (
-    <div className="registro-container">
-      <h2>Registros de la Imprenta</h2>
+    <div className="es-container">
+      <header className="es-header">
+        <h1 className="es-title">Entradas y Salidas</h1>
+      </header>
 
-      <div className="tabs">
-        <button className={vista === 'entradas' ? 'active' : ''} onClick={() => setVista('entradas')}>Entradas</button>
-        <button className={vista === 'salidas' ? 'active' : ''} onClick={() => setVista('salidas')}>Salidas</button>
-        <button className={vista === 'pendientes' ? 'active' : ''} onClick={() => setVista('pendientes')}>Pendientes</button>
+      <div className="es-tabs-container">
+        <button 
+          className={`es-tab-button ${activeTab === 'entradas' ? 'es-active' : ''}`}
+          onClick={() => setActiveTab('entradas')}
+        >
+          Entradas (Trabajos)
+        </button>
+        <button 
+          className={`es-tab-button ${activeTab === 'salidas' ? 'es-active' : ''}`}
+          onClick={() => setActiveTab('salidas')}
+        >
+          Salidas (Gastos)
+        </button>
       </div>
 
-      <div className="vista">
-        {vista === 'entradas' && (
-          <>
-            <form onSubmit={agregarEntrada} className="formulario">
-              <h3>Agregar Entrada</h3>
-              <input type="text" placeholder="Cliente" value={nuevaEntrada.cliente} onChange={e => setNuevaEntrada({ ...nuevaEntrada, cliente: e.target.value })} required />
-              <input type="date" value={nuevaEntrada.fecha} onChange={e => setNuevaEntrada({ ...nuevaEntrada, fecha: e.target.value })} required />
-              <input type="text" placeholder="Concepto" value={nuevaEntrada.concepto} onChange={e => setNuevaEntrada({ ...nuevaEntrada, concepto: e.target.value })} required />
-              <input type="number" placeholder="Cantidad total" value={nuevaEntrada.cantidad} onChange={e => setNuevaEntrada({ ...nuevaEntrada, cantidad: e.target.value })} required />
-              
-              <select value={nuevaEntrada.tipo_pago} onChange={e => setNuevaEntrada({ ...nuevaEntrada, tipo_pago: e.target.value })}>
-                <option value="completo">Pago completo</option>
-                <option value="abono">Abono</option>
-              </select>
-
-              {nuevaEntrada.tipo_pago === 'abono' && (
-                <input type="number" placeholder="Cantidad abonada" value={nuevaEntrada.abono} onChange={e => setNuevaEntrada({ ...nuevaEntrada, abono: e.target.value })} required />
-              )}
-
-              <button type="submit">Agregar Entrada</button>
-            </form>
-
-            <div className="tabla">
-              <h3>Entradas</h3>
-              {entradas.map(e => (
-                <div key={e.id} className="card entrada">
-                  <p><strong>Cliente:</strong> {e.cliente}</p>
-                  <p><strong>Fecha:</strong> {e.fecha}</p>
-                  <p><strong>Concepto:</strong> {e.concepto}</p>
-                  <p><strong>Total:</strong> ${e.cantidad}</p>
-                  <p><strong>Pago:</strong> {e.tipo_pago}</p>
-                  <p><strong>Abono:</strong> ${e.abono}</p>
-                  <p><strong>Saldo:</strong> ${e.saldo}</p>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {vista === 'salidas' && (
-          <>
-            <form onSubmit={agregarSalida} className="formulario">
-              <h3>Agregar Salida</h3>
-              <input type="text" placeholder="Descripción" value={nuevaSalida.descripcion} onChange={e => setNuevaSalida({ ...nuevaSalida, descripcion: e.target.value })} required />
-              <input type="date" value={nuevaSalida.fecha} onChange={e => setNuevaSalida({ ...nuevaSalida, fecha: e.target.value })} required />
-              <input type="number" placeholder="Cantidad" value={nuevaSalida.cantidad} onChange={e => setNuevaSalida({ ...nuevaSalida, cantidad: e.target.value })} required />
-              <button type="submit">Agregar Salida</button>
-            </form>
-
-            <div className="tabla">
-              <h3>Salidas</h3>
-              {salidas.map(s => (
-                <div key={s.id} className="card salida">
-                  <p><strong>Descripción:</strong> {s.descripcion}</p>
-                  <p><strong>Fecha:</strong> {s.fecha}</p>
-                  <p><strong>Cantidad:</strong> ${s.cantidad}</p>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {vista === 'pendientes' && (
-          <div className="tabla">
-            <h3>Trabajos Pendientes</h3>
-            {pendientes.length === 0 ? <p>No hay pendientes.</p> : pendientes.map(p => (
-              <div key={p.id} className="card pendiente">
-                <p><strong>Cliente:</strong> {p.cliente}</p>
-                <p><strong>Concepto:</strong> {p.concepto}</p>
-                <p><strong>Saldo pendiente:</strong> <span className="saldo">${p.saldo}</span></p>
+      {activeTab === 'entradas' ? (
+        <div className="es-content-section">
+          <div className="es-form-container">
+            <h2 className="es-form-title"> + Registrar Nuevo Trabajo</h2>
+            <form className="es-form" onSubmit={editingTrabajo ? actualizarTrabajo : agregarTrabajo}>
+              <div className="es-form-group">
+                <label className="es-label">Cliente:</label>
+                <select
+                  className="es-select"
+                  name="cliente"
+                  value={nuevoTrabajo.cliente}
+                  onChange={(e) => setNuevoTrabajo({ ...nuevoTrabajo, cliente: e.target.value })}
+                >
+                  <option value="" disabled>Seleccione un cliente</option>
+                  {clientes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre} {c.apellido}
+                    </option>
+                  ))}
+                </select>
               </div>
-            ))}
+
+              <div className="es-form-group">
+                <label className="es-label">Descripción:</label>
+                <textarea
+                  className="es-textarea"
+                  name="concepto"
+                  value={nuevoTrabajo.concepto}
+                  onChange={handleTrabajoChange}
+                  required
+                />
+              </div>
+
+              <div className="es-form-row">
+                <div className="es-form-group">
+                  <label className="es-label">Cantidad Total ($):</label>
+                  <input
+                    className="es-input"
+                    type="number"
+                    name="cantidad_total"
+                    value={nuevoTrabajo.cantidad_total}
+                    onChange={handleTrabajoChange}
+                    required
+                  />
+                </div>
+
+                <div className="es-form-group">
+                  <label className="es-label">Abono ($):</label>
+                  <input
+                    className="es-input"
+                    type="number"
+                    name="abono"
+                    value={nuevoTrabajo.abono}
+                    onChange={handleTrabajoChange}
+                    required
+                  />
+                </div>
+                
+                <div className="es-form-group">
+                  <label className="es-label">Fecha:</label>
+                  <input
+                    className="es-input"
+                    type="date"
+                    name="fecha"
+                    value={nuevoTrabajo.fecha}
+                    onChange={handleTrabajoChange}
+                    required
+                  />
+                </div>
+                
+                <div className="es-form-group">
+                  <label className="es-label">Estado:</label>
+                  <select
+                    className="es-select"
+                    name="estado"
+                    value={nuevoTrabajo.estado}
+                    onChange={handleTrabajoChange}
+                  >
+                    <option value="pendiente">Pendiente</option>
+                    <option value="completado">Completado</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="es-form-actions">
+                {editingTrabajo && (
+                  <button 
+                    type="button" 
+                    className="es-cancel-button" 
+                    onClick={() => {
+                      setEditingTrabajo(null);
+                      setNuevoTrabajo({
+                        cliente: '',
+                        fecha: '',
+                        concepto: '',
+                        cantidad_total: '',
+                        abono: '',
+                        saldo: '',
+                        estado: 'pendiente'
+                      });
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+                <button type="submit" className="es-submit-button">
+                  {editingTrabajo ? 'Actualizar Trabajo' : 'Registrar Trabajo'}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+          
+          <div className="es-list-container">
+            <h2 className="es-list-title">Listado de Trabajos</h2>
+            <div className="es-table-responsive">
+              <table className="es-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Concepto</th>
+                    <th>Cantidad</th>
+                    <th>Abono</th>
+                    <th>Saldo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trabajos.map((trabajo) => (
+                    <tr key={trabajo.id}>
+                      <td>{trabajo.id}</td>
+                      <td>{trabajo.nombre} {trabajo.apellido}</td>
+                      <td>{new Date(trabajo.fecha).toLocaleDateString('es-ES')}</td>
+                      <td>{trabajo.concepto}</td>
+                      <td>${(trabajo.cantidad_total || 0).toLocaleString()}</td>
+                      <td>${(trabajo.abono || 0).toLocaleString()}</td>
+                      <td>${(trabajo.saldo || 0).toLocaleString()}</td>
+                      <td>
+                        <span className={`es-estado-badge ${trabajo.estado}`}>
+                          {trabajo.estado}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="es-action-buttons">
+                          <button 
+                            className="es-edit-button" 
+                            onClick={() => editarTrabajo(trabajo)}
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            className="es-delete-button" 
+                            onClick={() => eliminarTrabajo(trabajo.id)}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="es-content-section">
+          <div className="es-form-container">
+            <h2 className="es-form-title">-Registrar Nuevo Gasto</h2>
+            <form className="es-form" onSubmit={editingGasto ? actualizarGasto : agregarGasto}>
+              <div className="es-form-group">
+                <label className="es-label">Descripción:</label>
+                <textarea
+                  className="es-textarea"
+                  name="descripcion"
+                  value={nuevoGasto.descripcion}
+                  onChange={handleGastoChange}
+                  required
+                />
+              </div>
+              
+              <div className="es-form-row">
+                <div className="es-form-group">
+                  <label className="es-label">Cantidad ($):</label>
+                  <input
+                    className="es-input"
+                    type="number"
+                    name="cantidad"
+                    value={nuevoGasto.cantidad}
+                    onChange={handleGastoChange}
+                    required
+                  />
+                </div>
+                
+                <div className="es-form-group">
+                  <label className="es-label">Fecha:</label>
+                  <input
+                    className="es-input"
+                    type="date"
+                    name="fecha"
+                    value={nuevoGasto.fecha}
+                    onChange={handleGastoChange}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="es-form-actions">
+                <button type="submit" className="es-submit-button">
+                  {editingGasto ? 'Actualizar Gasto' : 'Registrar Gasto'}
+                </button>
+                {editingGasto && (
+                  <button 
+                    type="button" 
+                    className="es-cancel-button" 
+                    onClick={() => {
+                      setEditingGasto(null);
+                      setNuevoGasto({ fecha: "", descripcion: "", cantidad: "" });
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+          
+          <div className="es-list-container">
+            <h2 className="es-list-title">Listado de Gastos</h2>
+            <div className="es-table-responsive">
+              <table className="es-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gastos.map((gasto) => (
+                    <tr key={gasto.id}>
+                      <td>{gasto.id}</td>
+                      <td>{new Date(gasto.fecha).toLocaleDateString('es-ES')}</td>
+                      <td>{gasto.descripcion}</td>
+                      <td>${gasto.cantidad.toLocaleString()}</td>
+                      <td>
+                        <div className="es-action-buttons">
+                          <button 
+                            className="es-edit-button" 
+                            onClick={() => editarGasto(gasto)}
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            className="es-delete-button" 
+                            onClick={() => eliminarGasto(gasto.id)}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default RegistroFinanzas;
+export default EntradasySalidas;

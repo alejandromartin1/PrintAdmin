@@ -48,10 +48,37 @@ const obtenerCotizacionesPorCliente = async (req, res) => {
     }
   };
 
+  const eliminarCotizacion = async (req, res) => {
+    try {
+      const cotizacion = await Cotizacion.deleteCotizacion(req.params.id);
+      if (!cotizacion) {
+        return res.status(404).json({ message: 'Cotización no encontrada' });
+      }
+      res.status(200).json({ message: 'Cotización eliminada', cotizacion });
+    } catch (error) {
+      res.status(500).json({ message: 'Error al eliminar cotización', error: error.message });
+    }
+  };
+  
+  const actualizarCotizacion = async (req, res) => {
+    const { id_cliente, conceptos, subtotal, iva, total } = req.body;
+  
+    try {
+      const cotizacion = await Cotizacion.updateCotizacion(req.params.id, id_cliente, conceptos, subtotal, iva, total);
+      if (!cotizacion) {
+        return res.status(404).json({ message: 'Cotización no encontrada' });
+      }
+      res.status(200).json({ message: 'Cotización actualizada', cotizacion });
+    } catch (error) {
+      res.status(500).json({ message: 'Error al actualizar cotización', error: error.message });
+    }
+  };
   
 module.exports = {
   crearCotizacion,
   obtenerCotizaciones,
   obtenerCotizacionPorId,
-  obtenerCotizacionesPorCliente
+  obtenerCotizacionesPorCliente,
+  eliminarCotizacion,
+  actualizarCotizacion
 };

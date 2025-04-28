@@ -10,9 +10,6 @@ const Navbar = ({ username }) => {
                 <input type="text" placeholder="Buscar..." />
                <i><FontAwesomeIcon icon={faMagnifyingGlass} /></i>
             </div>
-            <div className="user-info">
-                <span>{username}</span>
-            </div>
         </nav>
     );
 };

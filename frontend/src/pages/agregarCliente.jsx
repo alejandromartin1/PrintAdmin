@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faPlus, faUser } from '@fortawesome/free-solid-svg-icons';
+import Swal from 'sweetalert2';
 import '../styles/agregarCliente.css';
 
 const AgregarCliente = () => {
@@ -14,18 +15,26 @@ const AgregarCliente = () => {
 
     const [modalType, setModalType] = useState("");
     const [selectedCliente, setSelectedCliente] = useState(null);
-    const [setShowModal] = useState(false);
     const [showDeleteModal, setDeleteModal] = useState(false);
     const [showFormModal, setShowFormModal] = useState(false);
     const [clientes, setClientes] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const obtenerClientes = async () => {
+        setIsLoading(true);
         try {
             const res = await fetch('http://localhost:5000/api/clientes');
             const data = await res.json();
             setClientes(data);
         } catch (error) {
             console.error('Error al obtener clientes:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los clientes',
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -68,22 +77,31 @@ const AgregarCliente = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+        setIsLoading(true);
+        
         try {
             const method = modalType === 'editar' ? 'PUT' : 'POST';
             const url = modalType === 'editar'
                 ? `http://localhost:5000/api/cliente/${selectedCliente.id}`
                 : 'http://localhost:5000/api/cliente';
-    
+
             const response = await fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
-    
+
             const data = await response.json();
             if (response.ok) {
-                setShowModal(true);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: modalType === 'editar' 
+                        ? 'Cliente actualizado correctamente' 
+                        : 'Cliente agregado correctamente',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
                 setFormData({
                     nombre: '',
                     apellido: '',
@@ -91,22 +109,38 @@ const AgregarCliente = () => {
                     correo: '',
                     tipo_cliente: '',
                 });
-                obtenerClientes(); // Recargar la lista
-                setTimeout(() => setShowModal(false));
+                obtenerClientes();
                 handleCloseModal();
             } else {
-                alert('Error: ' + data.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Ocurrió un error',
+                });
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al conectar con la API');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor',
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
-    
 
     const handleDelete = async () => {
-        if (!selectedCliente?.id) return alert("Cliente no válido para eliminar.");
+        if (!selectedCliente?.id) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Cliente no válido para eliminar',
+            });
+            return;
+        }
 
+        setIsLoading(true);
         try {
             const response = await fetch(`http://localhost:5000/api/cliente/${selectedCliente.id}`, {
                 method: 'DELETE',
@@ -115,87 +149,184 @@ const AgregarCliente = () => {
             const data = await response.json();
 
             if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'Cliente eliminado correctamente',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
                 obtenerClientes();
                 handleCloseModal();
             } else {
-                alert("Error al eliminar cliente: " + data.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error al eliminar cliente',
+                });
             }
         } catch (error) {
             console.error('Error al eliminar cliente:', error);
-            alert('Error al conectar con la API');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor',
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <>
-            {/* Botón para mostrar el modal de agregar */}
-            <div className="container-agregar-cliente">
-                <h1 className="title-agregar-cliente">Clientes</h1>
-                <button className="btn-agregar-cliente" onClick={() => handleShowModal("agregar")}>Agregar Cliente</button>
+        <div className="clientes-container">
+            {/* Encabezado */}
+            <div className="clientes-header">
+                <h1 className="clientes-title">
+                    <FontAwesomeIcon icon={faUser} className="clientes-title-icon" />
+                    Gestión de Clientes
+                </h1>
+                <button 
+                    className="clientes-add-btn" 
+                    onClick={() => handleShowModal("agregar")}
+                    disabled={isLoading}
+                >
+                    <FontAwesomeIcon icon={faPlus} /> Agregar Cliente
+                </button>
             </div>
 
             {/* Modal del formulario */}
             {showFormModal && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h2>{modalType === 'editar' ? "Editar Cliente" : "Agregar Cliente"}</h2>
-                        <form className="form-agregar-cliente" onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="nombre">Nombre:</label>
-                                <input type="text" id="nombre" name="nombre" value={formData.nombre} onChange={handleChange} required />
+                <div className="clientes-modal-overlay">
+                    <div className="clientes-form-modal">
+                        <h2 className="clientes-modal-title">
+                            {modalType === 'editar' ? "Editar Cliente" : "Nuevo Cliente"}
+                        </h2>
+                        <form className="clientes-form" onSubmit={handleSubmit}>
+                            <div className="clientes-form-group">
+                                <label htmlFor="nombre" className="clientes-form-label">Nombre:</label>
+                                <input 
+                                    type="text" 
+                                    id="nombre" 
+                                    name="nombre" 
+                                    value={formData.nombre} 
+                                    onChange={handleChange} 
+                                    className="clientes-form-input"
+                                    required 
+                                />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="apellido">Apellido:</label>
-                                <input type="text" id="apellido" name="apellido" value={formData.apellido} onChange={handleChange} required />
+                            <div className="clientes-form-group">
+                                <label htmlFor="apellido" className="clientes-form-label">Apellido:</label>
+                                <input 
+                                    type="text" 
+                                    id="apellido" 
+                                    name="apellido" 
+                                    value={formData.apellido} 
+                                    onChange={handleChange} 
+                                    className="clientes-form-input"
+                                    required 
+                                />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="telefono">Teléfono:</label>
-                                <input type="tel" id="telefono" name="numero_telefono" value={formData.numero_telefono} onChange={handleChange} required />
+                            <div className="clientes-form-group">
+                                <label htmlFor="telefono" className="clientes-form-label">Teléfono:</label>
+                                <input 
+                                    type="tel" 
+                                    id="telefono" 
+                                    name="numero_telefono" 
+                                    value={formData.numero_telefono} 
+                                    onChange={handleChange} 
+                                    className="clientes-form-input"
+                                    required 
+                                />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="correo">Correo:</label>
-                                <input type="email" id="correo" name="correo" value={formData.correo} onChange={handleChange} required />
+                            <div className="clientes-form-group">
+                                <label htmlFor="correo" className="clientes-form-label">Correo:</label>
+                                <input 
+                                    type="email" 
+                                    id="correo" 
+                                    name="correo" 
+                                    value={formData.correo} 
+                                    onChange={handleChange} 
+                                    className="clientes-form-input"
+                                    required 
+                                />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="tipoCliente">Tipo de Cliente:</label>
-                                <select id="tipoCliente" name="tipo_cliente" value={formData.tipo_cliente} onChange={handleChange} required>
+                            <div className="clientes-form-group">
+                                <label htmlFor="tipoCliente" className="clientes-form-label">Tipo de Cliente:</label>
+                                <select 
+                                    id="tipoCliente" 
+                                    name="tipo_cliente" 
+                                    value={formData.tipo_cliente} 
+                                    onChange={handleChange} 
+                                    className="clientes-form-select"
+                                    required
+                                >
                                     <option value="">Seleccione una opción</option>
                                     <option value="empresa">Empresa</option>
                                     <option value="maquilador">Maquilador</option>
                                     <option value="cliente">Cliente</option>
                                 </select>
                             </div>
-                            <div className="modal-buttons">
-                                <button type="button" className="btn-cancel" onClick={handleCloseModal}>Cancelar</button>
-                                <button type="submit" className="btn-confirm">Guardar</button>
+                            <div className="clientes-modal-buttons">
+                                <button 
+                                    type="button" 
+                                    className="clientes-modal-cancel" 
+                                    onClick={handleCloseModal}
+                                    disabled={isLoading}
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    className="clientes-modal-confirm"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Guardando...' : 'Guardar'}
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-
             {/* Modal de eliminar */}
             {modalType === "eliminar" && showDeleteModal && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h2>Confirmar Eliminación</h2>
+                <div className="clientes-modal-overlay">
+                    <div className="clientes-delete-modal">
+                        <h2 className="clientes-modal-title">Confirmar Eliminación</h2>
                         {selectedCliente && (
-                            <p>¿Estás seguro de que quieres eliminar <strong>{selectedCliente.nombre} {selectedCliente.apellido}</strong>?</p>
+                            <p className="clientes-delete-text">
+                                ¿Estás seguro de que quieres eliminar al cliente 
+                                <strong> {selectedCliente.nombre} {selectedCliente.apellido}</strong>?
+                            </p>
                         )}
-                        <div className="modal-buttons">
-                            <button className="btn-cancel" onClick={handleCloseModal}>Cancelar</button>
-                            <button className="btn-confirm" onClick={handleDelete}>Eliminar</button>
+                        <div className="clientes-modal-buttons">
+                            <button 
+                                className="clientes-modal-cancel" 
+                                onClick={handleCloseModal}
+                                disabled={isLoading}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                className="clientes-modal-delete" 
+                                onClick={handleDelete}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Eliminando...' : 'Eliminar'}
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Tabla de clientes */}
-            {clientes.length > 0 && (
-                <div className="tabla-container">
-                    <h2 className="title-tabla">Clientes Agregados</h2>
-                    <table className="tabla-clientes">
+            <div className="clientes-table-container">
+                <h2 className="clientes-subtitle">Listado de Clientes</h2>
+                
+                {isLoading && clientes.length === 0 ? (
+                    <div className="clientes-loading">Cargando clientes...</div>
+                ) : clientes.length > 0 ? (
+                    <table className="clientes-table">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -203,32 +334,48 @@ const AgregarCliente = () => {
                                 <th>Teléfono</th>
                                 <th>Correo</th>
                                 <th>Tipo</th>
-                                <th>Acción</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {clientes.map((cliente, index) => (
-                                <tr key={index}>
+                            {clientes.map((cliente) => (
+                                <tr key={cliente.id}>
                                     <td>{cliente.nombre}</td>
                                     <td>{cliente.apellido}</td>
                                     <td>{cliente.numero_telefono}</td>
                                     <td>{cliente.correo}</td>
-                                    <td>{cliente.tipo_cliente}</td>
                                     <td>
-                                        <button className="btn-delete" onClick={() => handleShowModal("eliminar", cliente)}>
-                                            <FontAwesomeIcon icon={faTrash} /> Eliminar
-                                        </button>
-                                        <button className="btn-edit" onClick={() => handleShowModal("editar", cliente)}>
+                                        <span className={`clientes-badge clientes-badge-${cliente.tipo_cliente}`}>
+                                            {cliente.tipo_cliente}
+                                        </span>
+                                    </td>
+                                    <td className="clientes-actions">
+                                        <button 
+                                            className="clientes-btn-edit" 
+                                            onClick={() => handleShowModal("editar", cliente)}
+                                            disabled={isLoading}
+                                        >
                                             <FontAwesomeIcon icon={faEdit} /> Editar
+                                        </button>
+                                        <button 
+                                            className="clientes-btn-delete" 
+                                            onClick={() => handleShowModal("eliminar", cliente)}
+                                            disabled={isLoading}
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} /> Eliminar
                                         </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                </div>
-            )}
-        </>
+                ) : (
+                    <div className="clientes-empty">
+                        No hay clientes registrados. Agrega tu primer cliente.
+                    </div>
+                )}
+            </div>
+        </div>
     );
 };
 
