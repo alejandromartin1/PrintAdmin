@@ -13,6 +13,10 @@ import { faCalendarAlt } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { faUsers } from '@fortawesome/free-solid-svg-icons'; 
+import { Link } from 'react-router-dom';
+
+
 
 const Dashboard = () => {
     const [data, setData] = useState({
@@ -28,6 +32,8 @@ const Dashboard = () => {
         end: format(new Date(), 'yyyy-MM-dd')
     });
     const [user, setUser] = useState({ nombre: 'Usuario' });
+    const [totalClientes, setTotalClientes] = useState(0);
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -59,7 +65,8 @@ const Dashboard = () => {
                     'salidas/resumen/semanal',
                     'salidas/resumen/mensual',
                     'entradas/todos',
-                    'salidas/todos'
+                    'salidas/todos',
+                    'clientes/total'
                 ];
 
                 const responses = await Promise.all(
@@ -87,6 +94,10 @@ const Dashboard = () => {
                     historico: responses[6].data || [],
                     gastos: responses[7].data || []
                 });
+
+                setTotalClientes(responses[8].data.totalClientes);
+
+
 
                 setLoading(false);
             } catch (error) {
@@ -156,7 +167,12 @@ const Dashboard = () => {
         <div className="dashboard-container">
             <div className='content'>
                 <main className="main-content">
-                <h1>Bienvenid@ "{user.nombre} {user.apellido}"</h1>
+               <h1>Bienvenid@ "{user.nombreapellido}"</h1>
+
+                
+
+   
+    
                     <div className="filters">
                         <button onClick={() => handleDateFilter('semana')}>
                             <FontAwesomeIcon icon={faCalendarAlt} /> Esta semana
@@ -167,9 +183,19 @@ const Dashboard = () => {
                         <button onClick={() => handleDateFilter('7dias')}>
                             <FontAwesomeIcon icon={faCalendarAlt} /> Últimos 7 días
                         </button>
+                         {/* Caja Clientes al lado, compacta */}
+<div className="stat-box clientes">
+    <Link to="/clientes/agregarCliente" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <FontAwesomeIcon icon={faUsers} />
+        <span className="value">Total de Clientes: {totalClientes}</span>
+    </Link>
+</div>
+
                     </div>
                     
                     <div className='stats-container'>
+            
+
                         {/* Resumen de movimientos */}
                         <div className="stats">
                             {/* Caja Diaria */}
@@ -352,7 +378,9 @@ const Dashboard = () => {
                 </main>
             </div>
         </div>
+        
     );
+
 };
 
 export default Dashboard;

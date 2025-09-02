@@ -3,9 +3,14 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import '../styles/historialClientes.css';
 import Swal from 'sweetalert2';
+import { useParams } from 'react-router-dom';
+import { generarPDFHistorial } from '../utils/historialPDFGenerator'; // Ajusta la ruta
+import logo from '../assets/RUZ.png';// Si quieres incluir un logo
+
 
 const HistorialCliente = () => {
   // Estados principales
+  const { id } = useParams(); // 👈 id de la URL (cuando vienes desde AgregarCliente)
   const [clienteId, setClienteId] = useState('');
   const [clientes, setClientes] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -14,8 +19,10 @@ const HistorialCliente = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [clienteInfo, setClienteInfo] = useState(null);
-  
-  
+  const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth());
+const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+
+
   // Estados para filtros
   const [filtros, setFiltros] = useState({
     estado: 'todos',
@@ -33,6 +40,16 @@ const HistorialCliente = () => {
       try {
         const response = await axios.get('http://localhost:5000/api/clientes');
         setClientes(response.data);
+
+        // Si entramos desde /historial/:id
+        if (id) {
+          const clienteEncontrado = response.data.find(c => c.id.toString() === id.toString());
+          if (clienteEncontrado) {
+            setClienteId(clienteEncontrado.id);
+            setClienteInfo(clienteEncontrado);
+            buscarHistorial(clienteEncontrado.id); // 👈 carga automática
+          }
+        }
       } catch (err) {
         console.error('Error al cargar clientes:', err);
       }
@@ -44,7 +61,7 @@ const HistorialCliente = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [id]);
 
   const handleClickOutside = (event) => {
     if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
@@ -56,7 +73,7 @@ const HistorialCliente = () => {
   const handleClienteChange = (e) => {
     const value = e.target.value;
     setClienteId(value);
-    
+
     if (value.length > 1) {
       const filtered = clientes.filter(cliente =>
         cliente.nombre.toLowerCase().includes(value.toLowerCase()) ||
@@ -71,16 +88,16 @@ const HistorialCliente = () => {
 
   // Seleccionar un cliente de las sugerencias
   const selectCliente = (cliente) => {
-    setClienteId(`${cliente.nombre} ${cliente.apellido} (ID: ${cliente.id})`);
+    setClienteId(cliente.id);
     setClienteInfo(cliente);
     setSuggestions([]);
-    // Guardar el ID real para usar en la búsqueda
-    setClienteId(cliente.id);
   };
 
   // Buscar historial
-  const buscarHistorial = async () => {
-    if (!clienteId) {
+  const buscarHistorial = async (idParam) => {
+    const idBuscar = idParam || clienteId;
+
+    if (!idBuscar) {
       Swal.fire({
         icon: 'warning',
         title: 'Cliente requerido',
@@ -89,16 +106,15 @@ const HistorialCliente = () => {
       });
       return;
     }
-  
+
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await axios.get(`http://localhost:5000/api/entradas/cliente/${clienteId}`);
+
+      const response = await axios.get(`http://localhost:5000/api/entradas/clientes/${idBuscar}`);
       setHistorial(response.data);
       setFilteredHistorial(response.data);
-  
-      // Mostrar alerta solo si hay resultados
+
       if (response.data.length > 0) {
         Swal.fire({
           icon: 'success',
@@ -115,7 +131,6 @@ const HistorialCliente = () => {
           confirmButtonColor: '#db3434'
         });
       }
-      
     } catch (err) {
       console.error('Error al obtener historial:', err);
       Swal.fire({
@@ -128,24 +143,20 @@ const HistorialCliente = () => {
       setLoading(false);
     }
   };
+
   // Aplicar filtros
   const aplicarFiltros = () => {
     let resultado = [...historial];
 
-    // Filtrar por estado
     if (filtros.estado !== 'todos') {
       resultado = resultado.filter(t => t.estado === filtros.estado);
     }
-
-    // Filtrar por fecha
     if (filtros.fechaDesde) {
       resultado = resultado.filter(t => new Date(t.fecha) >= new Date(filtros.fechaDesde));
     }
     if (filtros.fechaHasta) {
       resultado = resultado.filter(t => new Date(t.fecha) <= new Date(filtros.fechaHasta));
     }
-
-    // Filtrar por monto
     if (filtros.montoMinimo) {
       resultado = resultado.filter(t => parseFloat(t.cantidad_total) >= parseFloat(filtros.montoMinimo));
     }
@@ -154,9 +165,6 @@ const HistorialCliente = () => {
     }
 
     setFilteredHistorial(resultado);
-  }
-    if (filteredHistorial.length === 0 && historial.length > 0) {
-
   };
 
   // Resetear filtros
@@ -168,18 +176,17 @@ const HistorialCliente = () => {
       montoMinimo: '',
       montoMaximo: ''
     });
+    setFilteredHistorial(historial);
     Swal.fire({
       icon: 'success',
       title: 'Filtros restablecidos',
       showConfirmButton: false,
       timer: 1000
     });
-    setFilteredHistorial(historial);
   };
 
   // Exportar a Excel
   const exportarExcel = () => {
-    // Preparar datos con formatos adecuados
     const data = filteredHistorial.map(item => ({
       'Fecha': formatDate(item.fecha),
       'Concepto': item.concepto,
@@ -189,33 +196,26 @@ const HistorialCliente = () => {
       'Estado': item.estado.toUpperCase(),
       'Detalles': item.detalles || ''
     }));
-  
-    // Crear hoja de trabajo
+
     const ws = XLSX.utils.json_to_sheet(data);
-    
-    // Ajustar anchos de columnas
-    const wscols = [
-      {wch: 15}, // Fecha
-      {wch: 30}, // Concepto
-      {wch: 12}, // Total
-      {wch: 12}, // Abono
-      {wch: 12}, // Saldo
-      {wch: 15}, // Estado
+    ws['!cols'] = [
+      { wch: 15 },
+      { wch: 30 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 15 },
     ];
-    ws['!cols'] = wscols;
-  
-    // Crear libro y guardar
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Historial");
-    
-    // Nombre del archivo con nombre del cliente si está disponible
-    const fileName = clienteInfo 
-      ? `Historial_${clienteInfo.nombre}_${clienteInfo.apellido}_${new Date().toISOString().slice(0,10)}.xlsx`
+
+    const fileName = clienteInfo
+      ? `Historial_${clienteInfo.nombre}_${clienteInfo.apellido}_${new Date().toISOString().slice(0, 10)}.xlsx`
       : `historial_cliente_${clienteId}.xlsx`;
-    
+
     XLSX.writeFile(wb, fileName);
   };
-  
 
   // Funciones de formato
   const formatCurrency = (amount) => {
@@ -226,26 +226,70 @@ const HistorialCliente = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
+    const options = {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
     };
     return new Date(dateString).toLocaleDateString('es-MX', options);
   };
 
+  const exportarPDFMes = () => {
+  if (!clienteId) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Cliente requerido',
+      text: 'Selecciona un cliente antes de exportar el PDF',
+      confirmButtonColor: '#db3434'
+    });
+    return;
+  }
+
+  // Filtrar trabajos del mes y año seleccionados
+  const trabajosMes = historial.filter(trabajo => {
+    const fecha = new Date(trabajo.fecha);
+    return fecha.getMonth() === parseInt(mesSeleccionado) &&
+           fecha.getFullYear() === parseInt(anioSeleccionado);
+  });
+
+  if (trabajosMes.length === 0) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Sin registros',
+      text: 'No se encontraron trabajos para el mes y año seleccionados',
+      confirmButtonColor: '#db3434'
+    });
+    return;
+  }
+
+  generarPDFHistorial(
+    trabajosMes,
+    clienteInfo,
+    formatDate,
+    formatCurrency,
+    parseInt(mesSeleccionado),
+    parseInt(anioSeleccionado),
+    logo
+  );
+};
+
+
   return (
     <div className="historial-container">
-      <header className='headerhistorial'>
-      <h2 className='title-historial'>Historial de Cliente</h2>
+      <header className="headerhistorial">
+        <h2 className="title-historial">Historial de Cliente</h2>
       </header>
-      {/* Búsqueda con autocompletado */}
+
+      {/* Búsqueda */}
       <div className="search-section">
         <div className="autocomplete" ref={suggestionsRef}>
           <input
             type="text"
-            value={typeof clienteId === 'number' ? 
-              clientes.find(c => c.id === clienteId)?.nombre || '' : clienteId}
+            value={
+              typeof clienteId === 'number'
+                ? clientes.find(c => c.id === clienteId)?.nombre || ''
+                : clienteId
+            }
             onChange={handleClienteChange}
             placeholder="Buscar cliente por nombre, apellido o ID"
             className="search-input"
@@ -253,19 +297,19 @@ const HistorialCliente = () => {
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
               {suggestions.map(cliente => (
-                <li 
-                  key={cliente.id} 
+                <li
+                  key={cliente.id}
                   onClick={() => selectCliente(cliente)}
                   className="suggestion-item"
                 >
-                  {cliente.nombre} {cliente.apellido} 
+                  {cliente.nombre} {cliente.apellido}
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <button 
-          onClick={buscarHistorial}
+        <button
+          onClick={() => buscarHistorial()}
           disabled={loading || !clienteId}
           className="search-button"
         >
@@ -296,57 +340,52 @@ const HistorialCliente = () => {
               <label>Estado:</label>
               <select
                 value={filtros.estado}
-                onChange={(e) => setFiltros({...filtros, estado: e.target.value})}
+                onChange={(e) => setFiltros({ ...filtros, estado: e.target.value })}
               >
                 <option value="todos">Todos</option>
                 <option value="pendiente">Pendiente</option>
                 <option value="completado">Completado</option>
               </select>
             </div>
-
             <div className="filter-group">
               <label>Fecha desde:</label>
               <input
                 type="date"
                 value={filtros.fechaDesde}
-                onChange={(e) => setFiltros({...filtros, fechaDesde: e.target.value})}
+                onChange={(e) => setFiltros({ ...filtros, fechaDesde: e.target.value })}
               />
             </div>
-
             <div className="filter-group">
               <label>Fecha hasta:</label>
               <input
                 type="date"
                 value={filtros.fechaHasta}
-                onChange={(e) => setFiltros({...filtros, fechaHasta: e.target.value})}
+                onChange={(e) => setFiltros({ ...filtros, fechaHasta: e.target.value })}
               />
             </div>
-
             <div className="filter-group">
               <label>Monto mínimo:</label>
               <input
                 type="number"
                 value={filtros.montoMinimo}
-                onChange={(e) => setFiltros({...filtros, montoMinimo: e.target.value})}
+                onChange={(e) => setFiltros({ ...filtros, montoMinimo: e.target.value })}
                 placeholder="$0.00"
                 min="0"
                 step="0.01"
               />
             </div>
-
             <div className="filter-group">
               <label>Monto máximo:</label>
               <input
                 type="number"
                 value={filtros.montoMaximo}
-                onChange={(e) => setFiltros({...filtros, montoMaximo: e.target.value})}
+                onChange={(e) => setFiltros({ ...filtros, montoMaximo: e.target.value })}
                 placeholder="$0.00"
                 min="0"
                 step="0.01"
               />
             </div>
           </div>
-
           <div className="filter-actions">
             <button onClick={aplicarFiltros} className="filter-button apply">
               Aplicar Filtros
@@ -365,15 +404,37 @@ const HistorialCliente = () => {
           <p>Cargando historial...</p>
         </div>
       ) : filteredHistorial.length > 0 ? (
-          <div className="es-list-containerhistorial">
-             {/* Exportación */}
-      {filteredHistorial.length > 0 && (
-        <div className="export-section">
-          <button onClick={exportarExcel} className="export-button excel">
-            Exportar a Excel
-          </button>
-        </div>
-      )}
+        <div className="es-list-containerhistorial">
+          {/* Exportación */}
+          <div className="export-section">
+            <button onClick={exportarExcel} className="export-button excel">
+              Exportar a Excel
+            </button>
+
+
+            <div className="pdf-export-section">
+  <label>Mes:</label>
+  <select value={mesSeleccionado} onChange={(e) => setMesSeleccionado(e.target.value)}>
+    {Array.from({ length: 12 }, (_, i) => (
+      <option key={i} value={i}>{new Date(0, i).toLocaleString('es-MX', { month: 'long' })}</option>
+    ))}
+  </select>
+
+  <label>Año:</label>
+  <input
+    type="number"
+    value={anioSeleccionado}
+    onChange={(e) => setAnioSeleccionado(e.target.value)}
+    min="2000"
+    max={new Date().getFullYear()}
+  />
+
+  <button onClick={exportarPDFMes} className="export-button pdf">
+    Exportar PDF por Mes
+  </button>
+</div>
+
+          </div>
           <div className="summary">
             <p>Mostrando {filteredHistorial.length} de {historial.length} trabajos</p>
             <p>Saldo total pendiente: {formatCurrency(filteredHistorial.reduce((sum, t) => sum + parseFloat(t.saldo), 0))}</p>
@@ -382,7 +443,6 @@ const HistorialCliente = () => {
             <table className="historial-table">
               <thead>
                 <tr>
-                  
                   <th>Fecha</th>
                   <th>Concepto</th>
                   <th>Total</th>
@@ -411,7 +471,7 @@ const HistorialCliente = () => {
               </tbody>
             </table>
           </div>
-          </div>
+        </div>
       ) : (
         !error && historial.length === 0 && (
           <div className="empty-state">

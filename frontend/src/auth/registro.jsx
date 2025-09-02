@@ -9,6 +9,7 @@ const Register = () => {
     const [apellido, setApellido] = useState('');
     const [correo, setCorreo] = useState('');
     const [contrasena, setContrasena] = useState('');
+    const [rol, setRol] = useState('usuario'); // Nuevo estado para el rol
     const [mensaje, setMensaje] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -22,7 +23,8 @@ const Register = () => {
                 nombre, 
                 apellido, 
                 correo,
-                contrasena
+                contrasena,
+                rol // 👈 Se envía también el rol
             });
     
             setMensaje(response.data.message);
@@ -31,8 +33,8 @@ const Register = () => {
         } catch (error) {
             console.error('Error completo:', error);
             const serverMessage = error.response?.data?.error || 
-                                error.response?.data?.message || 
-                                "Error al conectar con el servidor";
+                                  error.response?.data?.message || 
+                                  "Error al conectar con el servidor";
             setMensaje(`Error: ${serverMessage}`);
         } finally {
             setLoading(false);
@@ -75,6 +77,15 @@ const Register = () => {
                         value={contrasena} 
                         onChange={(e) => setContrasena(e.target.value)} 
                     />
+                    <select 
+                        className="auth-input"
+                        value={rol}
+                        onChange={(e) => setRol(e.target.value)}
+                    >
+                        <option value="usuario">Usuario</option>
+                        <option value="admin">Administrador</option>
+                        <option value="empleado">Empleado</option>
+                    </select>
                     <button 
                         className="auth-button" 
                         onClick={handleRegister} 

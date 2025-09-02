@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus, faUser } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import '../styles/agregarCliente.css';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 const AgregarCliente = () => {
     const [formData, setFormData] = useState({
         nombre: "",
@@ -19,7 +19,28 @@ const AgregarCliente = () => {
     const [showFormModal, setShowFormModal] = useState(false);
     const [clientes, setClientes] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [totalClientes, setTotalClientes] = useState(0);
+    const navigate = useNavigate();
+    
+     const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const buscarId = params.get("buscar");
 
+    const permisosUsuario = JSON.parse(localStorage.getItem("permisos")) || [];
+    const rol = localStorage.getItem("rol");
+    const esAdmin = rol === "Administrador";
+
+    useEffect(() => {
+        obtenerClientes();
+        obtenerTotalClientes();
+    }, []);
+
+    // 🔹 Una vez que cargan los clientes, aplicamos el filtro si hay buscarId
+    useEffect(() => {
+        if (buscarId && clientes.length > 0) {
+            setClientes((prev) => prev.filter(c => c.id.toString() === buscarId));
+        }
+    }, [buscarId, clientes.length]);
     const obtenerClientes = async () => {
         setIsLoading(true);
         try {
@@ -38,9 +59,23 @@ const AgregarCliente = () => {
         }
     };
 
-    useEffect(() => {
-        obtenerClientes();
-    }, []);
+    const obtenerTotalClientes = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/clientes/total');
+            const data = await res.json();
+            setTotalClientes(data.totalClientes); 
+        } catch (error) {
+            console.error('Error al obtener el total de clientes:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo obtener el total de clientes',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleChange = (e) => {
         setFormData({
@@ -82,8 +117,8 @@ const AgregarCliente = () => {
         try {
             const method = modalType === 'editar' ? 'PUT' : 'POST';
             const url = modalType === 'editar'
-                ? `http://localhost:5000/api/cliente/${selectedCliente.id}`
-                : 'http://localhost:5000/api/cliente';
+                ? `http://localhost:5000/api/clientes/${selectedCliente.id}`
+                : 'http://localhost:5000/api/clientes';
 
             const response = await fetch(url, {
                 method: method,
@@ -110,6 +145,7 @@ const AgregarCliente = () => {
                     tipo_cliente: '',
                 });
                 obtenerClientes();
+                obtenerTotalClientes();
                 handleCloseModal();
             } else {
                 Swal.fire({
@@ -142,7 +178,7 @@ const AgregarCliente = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/cliente/${selectedCliente.id}`, {
+            const response = await fetch(`http://localhost:5000/api/clientes/${selectedCliente.id}`, {
                 method: 'DELETE',
             });
 
@@ -157,6 +193,7 @@ const AgregarCliente = () => {
                     showConfirmButton: false
                 });
                 obtenerClientes();
+                obtenerTotalClientes();
                 handleCloseModal();
             } else {
                 Swal.fire({
@@ -179,19 +216,25 @@ const AgregarCliente = () => {
 
     return (
         <div className="clientes-container">
-            {/* Encabezado */}
             <div className="clientes-header">
                 <h1 className="clientes-title">
                     <FontAwesomeIcon icon={faUser} className="clientes-title-icon" />
                     Gestión de Clientes
                 </h1>
-                <button 
-                    className="clientes-add-btn" 
-                    onClick={() => handleShowModal("agregar")}
-                    disabled={isLoading}
-                >
-                    <FontAwesomeIcon icon={faPlus} /> Agregar Cliente
-                </button>
+                <div style={{ fontSize: '18px', color: '#e74c3c', fontWeight: 'bold', marginLeft: '20px' }}>
+                     Total de clientes: <strong>{totalClientes}</strong>
+                </div>
+
+               {(esAdmin || permisosUsuario.includes("crear_cliente")) && (
+                    <button 
+                        className="clientes-add-btn" 
+                        onClick={() => handleShowModal("agregar")}
+                        disabled={isLoading}
+                    >
+                        <FontAwesomeIcon icon={faPlus} /> Agregar Cliente
+                    </button>
+                )}
+        
             </div>
 
             {/* Modal del formulario */}
@@ -350,20 +393,35 @@ const AgregarCliente = () => {
                                         </span>
                                     </td>
                                     <td className="clientes-actions">
-                                        <button 
-                                            className="clientes-btn-edit" 
-                                            onClick={() => handleShowModal("editar", cliente)}
-                                            disabled={isLoading}
-                                        >
-                                            <FontAwesomeIcon icon={faEdit} /> Editar
-                                        </button>
-                                        <button 
-                                            className="clientes-btn-delete" 
-                                            onClick={() => handleShowModal("eliminar", cliente)}
-                                            disabled={isLoading}
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} /> Eliminar
-                                        </button>
+                                            {(esAdmin || permisosUsuario.includes("editar_cliente")) && (
+                                            <button 
+                                                className="clientes-btn-edit" 
+                                                onClick={() => handleShowModal("editar", cliente)}
+                                                disabled={isLoading}
+                                            >
+                                                <FontAwesomeIcon icon={faEdit} /> Editar
+                                            </button>
+                                        )}
+
+                                        {/* 🔹 Eliminar solo si tiene permiso */}
+                                        {(esAdmin || permisosUsuario.includes("eliminar_cliente")) && (
+                                            <button 
+                                                className="clientes-btn-delete" 
+                                                onClick={() => handleShowModal("eliminar", cliente)}
+                                                disabled={isLoading}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} /> Eliminar
+                                            </button>
+                                        )}
+                                     
+         {(esAdmin || permisosUsuario.includes("ver_historial_cliente")) && (         
+        <button 
+            className="clientes-btn-historial"
+            onClick={() => navigate(`/historial/${cliente.id}`)}
+        >
+            📜 Historial
+        </button>
+   )}
                                     </td>
                                 </tr>
                             ))}
@@ -376,6 +434,7 @@ const AgregarCliente = () => {
                 )}
             </div>
         </div>
+        
     );
 };
 

@@ -1,89 +1,107 @@
-/* Sidebar */
+/* SIDEBAR PRINCIPAL */
 .sidebar {
-    width: 250px;
-    height: 100vh;
-    background-color: #BB2927;
-    color: white;
-    padding: 20px;
-    position: fixed;  /* Mantiene el sidebar fijo */
-    top: 0; /* Asegura que el sidebar esté en la parte superior */
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 1000; /* Asegura que el sidebar esté por encima del contenido */
+  width: 250px; /* ancho fijo */
+  height: 100vh;
+  background: linear-gradient(180deg, #BB2927, #BB2927, #BB2927);
+  color: #fff;
+  padding: 20px 8px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 1000;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-y: auto; /* scroll independiente si hay muchas páginas */
 }
 
+/* LOGO */
+.logo-container {
+  margin-bottom: 20px;
+  text-align: center;
+  width: 100%;
+}
 
 .logo {
-    width: 120px;
-    height: auto;    
+  width: 100px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-.logo-container{
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.sidebar h2 {
-    text-align: center;
-    font-size: 20px;
-}
-
+/* NAVEGACIÓN */
 .sidebar ul {
-    list-style: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
+  width: 100%;
 }
 
 .sidebar li {
-    margin: 15px 0;
+  margin: 10px 0;
 }
 
 .sidebar a {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    align-items: center;
-    display: flex;
-    padding: 10px;
-    border-radius: 5px;
-    transition: background 0.3s;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 10px;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.sidebar a svg{
-    margin-right: 10px;
+.sidebar a svg {
+  margin-right: 8px;
+  font-size: 16px;
 }
+
 .sidebar a:hover {
-    background-color: #b30000;
+  background: #51cf66;
+  color: #000;
+  transform: translateX(5px);
+  font-weight: 600;
 }
 
-
-/* Ajusta el tamaño de las subopciones */
+/* SUBMENÚ */
 .submenu li a {
-    font-size: 15px; /* Tamaño de letra más pequeño */
-    padding-left: 30px; /* Indentación para alinearlo bien */
+  font-size: 14px;
+  padding-left: 30px;
+  color: #fce4ec;
+  transition: all 0.3s ease;
 }
 
-/* Asegura que Facturación esté alineado correctamente */
+.submenu li a:hover {
+  color: #fcff66;
+  font-weight: bold;
+}
+
+/* SECCIÓN FACTURA CON SUBMENÚ */
 .factura div {
-    display: flex;
-    align-items: center;
-    padding: 10px; /* Igual que los otros elementos */
-    border-radius: 5px;
-    transition: background 0.3s;
-    color: white;
-    font-size: 18px;
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 10px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .factura div:hover {
-    background-color: #b30000;
+  background: #3fdb30;
+  color: #000;
+  transform: translateX(5px);
 }
 
-/* Ajustar el ícono de Facturación */
 .factura svg {
-    margin-right: 10px; /* Espacio igual que los otros íconos */
+  margin-right: 8px;
 }
 
 .factura .submenu {
-    padding-left: 15px; /* Da un margen a las opciones dentro del submenú */
+  padding-left: 12px;
+  margin-top: 4px;
+  border-left: 3px solid #fff5;
 }

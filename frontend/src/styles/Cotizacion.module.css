@@ -225,3 +225,67 @@
     font-size: 1.5rem;
   }
 }
+
+
+.historialContainer {
+  margin-top: 2rem;
+  background-color: var(--light-gray);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.historialTitle {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.historialTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.historialTable thead {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.historialTable th,
+.historialTable td {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.historialTable tr:nth-child(even) {
+  background-color: var(--light-gray);
+}
+
+.historialTable tr:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.historialNote {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.vistaPreviaWrapper {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s ease, opacity 0.5s ease;
+}
+
+.vistaPreviaWrapper.visible {
+  max-height: 1000px; /* un valor suficientemente alto para que quepa todo */
+  opacity: 1;
+}

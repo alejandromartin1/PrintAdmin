@@ -1,0 +1,156 @@
+.factura-wrapper {
+  padding: 20px;
+  margin-top: 120px; /* empuja todo hacia abajo del navbar */
+  margin-left: 250px; /* deja espacio para el sidebar */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centra dentro del espacio restante */
+  width: calc(100% - 250px); /* ocupa todo el espacio menos el sidebar */
+  box-sizing: border-box;
+}
+.boton-descargar {
+  margin-bottom: 20px; /* espacio entre botón y cuadro */
+}
+
+.btn-pdf {
+  padding: 16px 35px; /* botón más grande */
+  background-color: #c94c4c; /* rojo */
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-pdf:hover {
+  background-color: #a32f2f;
+}
+
+.factura-cuadro, .factura-container {
+  border: 2px solid #c94c4c;
+  padding: 50px; /* más grande */
+  border-radius: 12px;
+  background-color: #fff5f5;
+  max-width: 900px; /* ajustado para que no sea demasiado ancho */
+  width: 100%;
+  box-shadow: none; /* quitar sombra */
+  margin-bottom: 30px; /* espacio debajo del cuadro */
+}
+
+.factura-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #c94c4c;
+  padding-bottom: 10px;
+}
+
+.factura-header h1 {
+  font-size: 36px; /* más grande */
+  color: #c94c4c;
+  margin: 0;
+}
+
+.factura-info p {
+  margin: 10px 0;
+  font-size: 20px; /* más grande */
+  color: #5c1a1a;
+}
+
+.factura-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 30px 0;
+}
+
+.factura-table th,
+.factura-table td {
+  border: 1px solid #e0b4b4;
+  padding: 16px;
+  text-align: left;
+  font-size: 18px;
+}
+
+.factura-table th {
+  background-color: #c94c4c;
+  color: #fff;
+  font-weight: 600;
+}
+
+.factura-table tr:nth-child(even) {
+  background-color: #f7d6d6;
+}
+
+.factura-total {
+  text-align: right;
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 20px;
+  color: #c94c4c;
+}
+
+.factura-evidencia img {
+  width: 250px; /* más grande */
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+.factura-footer {
+  text-align: center;
+  font-size: 18px;
+  color: #8b2e2e;
+  border-top: 1px solid #e0b4b4;
+  padding-top: 15px;
+  margin-top: 25px;
+}
+
+/* Botones generales */
+.btn-pdf,
+.btn-guardar,
+.btn-ver {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Botón Descargar PDF */
+.btn-pdf {
+  background-color: #e74c3c; /* rojo corporativo */
+}
+
+.btn-pdf:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+/* Botón Guardar */
+.btn-guardar {
+  background-color: #3498db; /* azul moderno */
+}
+
+.btn-guardar:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+/* Botón Ver en Historial */
+.btn-ver {
+  background-color: #1abc9c; /* verde claro */
+}
+
+.btn-ver:hover {
+  background-color: #16a085;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}

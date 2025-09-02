@@ -1,0 +1,112 @@
+.gestion-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(214, 40, 40, 0.1);
+  border: 2px solid #d62828;
+}
+
+.gestion-titulo {
+  color: #d62828;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.gestion-subtitulo {
+  color: #2a9d8f;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.formulario input[type="text"] {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.permisos-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.permiso-label {
+  background-color: #fefae0;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #d4a017;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.acciones-form {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-guardar {
+  background-color: #2a9d8f;
+  color: white;
+}
+
+.btn-cancelar {
+  background-color: #ffbe0b;
+  color: black;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+.tabla-roles {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.tabla-roles th,
+.tabla-roles td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+.tabla-roles thead {
+  background-color: #d62828;
+  color: white;
+}
+
+.badge-permiso {
+  background-color: #2a9d8f;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin: 2px;
+  display: inline-block;
+}
+
+.btn-editar {
+  background-color: #ffbe0b;
+  color: black;
+  margin-right: 5px;
+}
+
+.btn-eliminar {
+  background-color: #d62828;
+  color: white;
+}

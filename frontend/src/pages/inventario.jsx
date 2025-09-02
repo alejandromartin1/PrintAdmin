@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/inventario.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faPlus, faTrash, faBoxes } from "@fortawesome/free-solid-svg-icons";
+import { useLocation } from "react-router-dom";
+
 
 const Inventario = () => {
     const [products, setProducts] = useState([]);
@@ -14,11 +16,28 @@ const Inventario = () => {
         cantidad: "",
         descripcion: "",
     });
+      const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const buscarId = params.get("buscar"); // 👈 capturar query param
 
-    // Cargar productos desde la API
+
+    const permisosUsuario = JSON.parse(localStorage.getItem("permisos")) || [];
+    const rol = localStorage.getItem("rol");
+    const esAdmin = rol === "Administrador";
     useEffect(() => {
         fetchProducts();
     }, []);
+
+useEffect(() => {
+  if (buscarId && products.length > 0) {
+    const productoEncontrado = products.find(p => p.id.toString() === buscarId);
+    if (productoEncontrado) {
+      // ✅ Aquí ya tienes el producto encontrado
+      console.log("Producto encontrado en inventario:", productoEncontrado);
+
+    }
+  }
+}, [buscarId, products]);
 
     const fetchProducts = async () => {
         try {
@@ -89,83 +108,105 @@ const Inventario = () => {
     };
 
     const handleDecrease = async (id) => {
-        // Buscar el producto de la lista de productos
-        const product = products.find(p => p.id === id);
-        const nuevaCantidad = Math.max(0, product.cantidad - 1);  // Aseguramos que la cantidad no sea negativa
-    
         try {
-            // Llamada a la API para disminuir la cantidad
-            const response = await axios.put(`http://localhost:5000/api/inventario/disminuir/${id}`, {
-                cantidad: nuevaCantidad,  // Enviamos solo la cantidad al backend
-            });
-    
-            console.log("Respuesta del servidor:", response.data); // Agrega un log para depurar
-    
-            if (response.data.producto) {
-                // Si la respuesta es exitosa, actualizamos el producto en el frontend
+            const response = await axios.put(`http://localhost:5000/api/inventario/disminuir/${id}`);
+            if (response.data && response.data.producto) {
                 setProducts((prevProducts) =>
                     prevProducts.map((p) =>
-                        p.id === id ? { ...p, cantidad: nuevaCantidad } : p
+                        p.id === id ? { ...p, cantidad: response.data.producto.cantidad } : p
                     )
                 );
             } else {
-                console.error("Error en la respuesta del servidor:", response.data.error);
+                console.error("Respuesta inválida al disminuir:", response.data);
             }
-    
         } catch (error) {
-            console.error("Error al disminuir cantidad:", error);
+            console.error("Error al disminuir:", error);
         }
     };
-    
+
+    const handleIncrease = async (id) => {
+        try {
+            const response = await axios.put(`http://localhost:5000/api/inventario/incrementar/${id}`);
+            if (response.data && response.data.producto) {
+                setProducts((prevProducts) =>
+                    prevProducts.map((p) =>
+                        p.id === id ? { ...p, cantidad: response.data.producto.cantidad } : p
+                    )
+                );
+            } else {
+                console.error("Respuesta inválida al incrementar:", response.data);
+            }
+        } catch (error) {
+            console.error("Error al incrementar:", error);
+        }
+    };
 
     return (
         <div className="inventario-container">
-            <h1 className="inventario-title">Inventario</h1>
-            <div className="Tabla-container">
-                <button className="btn-agregar" onClick={() => handleShowModal("agregar")}>
-                    <FontAwesomeIcon icon={faPlus}/> Agregar Producto
-                </button>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
-                            <th>Fecha Ingreso</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map((product) => (
-                            <tr key={product.id}>
-                                <td>{product.producto}</td>
-                                <td>{product.cantidad}</td>
-                                <td>{product.descripcion}</td>
-                                <td>
-                                    <span className={`estado ${determinarEstado(product.cantidad).toLowerCase().replace(/\s+/g, '-')}`}>
-                                        {determinarEstado(product.cantidad)}
-                                    </span>
-                                </td>
-                                <td>{new Date(product.fecha_ingreso).toLocaleDateString("es-MX")}</td>
-                                <td>
-                                    <button className="btn-delete" onClick={() => handleShowModal("eliminar", product)}>
-                                        <FontAwesomeIcon icon={faTrash} /> Eliminar
-                                    </button>
-                                    <button className="btn-edit" onClick={() => handleShowModal("editar", product)}>
-                                        <FontAwesomeIcon icon={faEdit} /> Editar
-                                    </button>
-                                    <button className="btn-decrease" onClick={() => handleDecrease(product.id)}>
-                                        -1
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="inventario-header">
+                <h1>
+                    <FontAwesomeIcon icon={faBoxes} className="inventario-icon" />
+                    Inventario
+                </h1>
+                <hr />
             </div>
 
-            {/* MODAL DE ELIMINAR */}
+            <div className="Tabla-container">
+     {(esAdmin || permisosUsuario.includes("agregar_producto")) && (
+        <button className="btn-agregar" onClick={() => handleShowModal("agregar")}>
+            <FontAwesomeIcon icon={faPlus} /> Agregar Producto
+        </button>
+    )}
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Fecha Ingreso</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {products.map((product) => (
+                <tr key={product.id}>
+                    <td>{product.producto}</td>
+                    <td>{product.cantidad}</td>
+                    <td>{product.descripcion}</td>
+                    <td>
+                        <span className={`estado ${determinarEstado(product.cantidad).toLowerCase().replace(/\s+/g, '-')}`}>
+                            {determinarEstado(product.cantidad)}
+                        </span>
+                    </td>
+                    <td>{new Date(product.fecha_ingreso).toLocaleDateString("es-MX")}</td>
+                    <td>
+                        <div className="inventario-acciones">
+                              {(esAdmin || permisosUsuario.includes("eliminar_producto")) && (
+                                <button className="btn-delete" onClick={() => handleShowModal("eliminar", product)}>
+                                    <FontAwesomeIcon icon={faTrash} /> Eliminar 
+                                </button>
+                            )}
+                             {(esAdmin || permisosUsuario.includes("editar_producto")) && (
+                                <button className="btn-edit" onClick={() => handleShowModal("editar", product)}>
+                                    <FontAwesomeIcon icon={faEdit} /> Editar
+                                </button>
+                            )}
+                              {(esAdmin || permisosUsuario.includes("disminuir_producto")) && (
+                                <button className="btn-decrease" onClick={() => handleDecrease(product.id)}>-</button>
+                            )}
+                             {(esAdmin || permisosUsuario.includes("aumentar_producto")) && (
+                                <button className="btn-increase" onClick={() => handleIncrease(product.id)}>+</button>
+                            )}
+                        </div>
+                    </td>
+                </tr>
+            ))}
+        </tbody>
+    </table>
+</div>
+
+
             {modalType === "eliminar" && showModal && (
                 <div className="modal-overlay">
                     <div className="modal">
@@ -181,31 +222,51 @@ const Inventario = () => {
                 </div>
             )}
 
-            {/* MODAL DE AGREGAR/EDITAR */}
-            {(modalType === "agregar" || modalType === "editar") && showModal && (
-                <div className="modal-overlay">
-                    <div className="modal2">
-                        <h2>{modalType === "editar" ? "Editar Producto" : "Agregar Producto"}</h2>
-                        <form>
-                            <label>Producto:</label>
-                            <input type="text" name="producto" value={formData.producto} onChange={handleChange} required />
+           {(modalType === "agregar" || modalType === "editar") && showModal && (
+    <div className="modal-overlay">
+        <div className="modal2">
+            <h2 className="modal-title">
+                {modalType === "editar" ? "Editar Producto" : "Agregar Producto"}
+            </h2>
+            <form className="modal-form">
+                <label>Producto:</label>
+                <input
+                    type="text"
+                    name="producto"
+                    value={formData.producto}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <label>Cantidad:</label>
-                            <input type="number" name="cantidad" value={formData.cantidad} onChange={handleChange} required />
+                <label>Cantidad:</label>
+                <input
+                    type="number"
+                    name="cantidad"
+                    value={formData.cantidad}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <label>Descripción:</label>
-                            <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} required />
+                <label>Descripción:</label>
+                <textarea
+                    name="descripcion"
+                    value={formData.descripcion}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <div className="modal-buttonss">
-                                <button className="btn-cancelar" type="button" onClick={handleCloseModal}>Cancelar</button>
-                                <button className="btn-confirmar" type="button" onClick={handleSave}>
-                                    {modalType === "editar" ? "Guardar Cambios" : "Agregar"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                <div className="modal-buttons">
+                    <button className="btn-cancelar" type="button" onClick={handleCloseModal}>
+                        Cancelar
+                    </button>
+                    <button className="btn-confirmar" type="button" onClick={handleSave}>
+                        {modalType === "editar" ? "Guardar Cambios" : "Agregar"}
+                    </button>
                 </div>
-            )}
+            </form>
+        </div>
+    </div>
+)}
         </div>
     );
 };

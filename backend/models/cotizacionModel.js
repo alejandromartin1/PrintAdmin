@@ -70,12 +70,37 @@ const Cotizacion = {
 
 
   getCotizacionesPorCliente: async (id_cliente) => {
-    const cotizaciones = await pool.query(
-      'SELECT * FROM cotizaciones WHERE id_cliente = $1',
-      [id_cliente]
-    );
-    return cotizaciones.rows;
-  },
+  const result = await pool.query(
+    `
+    SELECT 
+      c.id AS id,
+      c.fecha_creacion AS fecha,
+      c.subtotal,
+      c.iva,
+      c.total,
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'concepto', d.concepto,
+            'cantidad', d.cantidad,
+            'precio_unitario', d.precio_unitario,
+            'iva_porcentaje', d.iva_porcentaje,
+            'total_final', d.total_final
+          )
+        ) FILTER (WHERE d.id IS NOT NULL), 
+        '[]'
+      ) AS conceptos
+    FROM cotizaciones c
+    LEFT JOIN detalle_cotizacion d ON d.id_cotizacion = c.id
+    WHERE c.id_cliente = $1
+    GROUP BY c.id, c.fecha_creacion, c.subtotal, c.iva, c.total
+    ORDER BY c.fecha_creacion DESC
+    `,
+    [id_cliente]
+  );
+
+  return result.rows;
+},
 
 // Eliminar una cotización y sus detalles
 deleteCotizacion: async (id) => {

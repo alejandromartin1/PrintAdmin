@@ -1,17 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const EntradasController = require('../controllers/entradasController');
+const entradasController = require('../controllers/entradasController');
+const multer = require('multer');
+const path = require('path');
 
-router.get('/todos', EntradasController.getEntradas);// Devuelve todas las entradas
-router.post('/crear', EntradasController.crearEntrada);// Crea las entradas
-router.put('/:id/pagar', EntradasController.marcarPagado);// Para marcar en pagado
-router.get('/pendientes', EntradasController.getPendientes);// Para visualizar pagos pendientes
-router.get('/resumen/diario', EntradasController.getResumenDiario);// Ruta para obtener el resumen diario
-router.get('/resumen/semanal', EntradasController.getResumenSemanal);// Ruta para obtener el resumen semanal
-router.get('/resumen/mensual', EntradasController.getResumenMensual);// Ruta para obtener el resumen mensual
-router.get('/buscar', EntradasController.buscarEntradas);// Buscar entradas
-router.get('/cliente/:id', EntradasController.historialPorCliente);// Buscar por id cliente
-router.put('/editar/:id', EntradasController.editarEntrada); // Editar una entrada
-router.delete('/eliminar/:id', EntradasController.eliminarEntrada);// Eliminar una entradas
+// Configuración Multer para guardar evidencia (solo para crear entrada)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
 
-module.exports = router;
+// Rutas
+router.get('/todos', entradasController.getEntradas);
+router.get('/pendientes', entradasController.getPendientes);
+router.get('/resumen/diario', entradasController.getResumenDiario);
+router.get('/resumen/semanal', entradasController.getResumenSemanal);
+router.get('/resumen/mensual', entradasController.getResumenMensual);
+
+// ⚠ primero la de clientes
+router.get('/clientes/:id', entradasController.historialPorCliente); // Buscar por id cliente
+
+// luego la genérica por ID
+router.get('/:id', entradasController.getEntradaById);
+
+// Crear entrada 
+router.post('/crear', upload.single('evidencia'), entradasController.crearEntrada);
+
+// Editar entrada 
+router.put('/editar/:id', entradasController.editarEntrada);
+
+// Marcar como pagado
+router.put('/:id/pagar', entradasController.marcarPagado);
+
+// Eliminar entrada
+router.delete('/eliminar/:id', entradasController.eliminarEntrada);
+
+module.exports = router;

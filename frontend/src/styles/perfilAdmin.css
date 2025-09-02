@@ -1,0 +1,110 @@
+/* Contenedor principal */
+.perfil-container {
+  max-width: 900px;
+  margin: 5rem auto;
+  padding: 2.5rem;
+  background: #fff5f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #800000;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+/* Título */
+.perfil-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2.5rem;
+  color: #b30000;
+}
+
+/* Tarjeta de perfil */
+.perfil-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-top: 2px solid #ffb3b3;
+  border-bottom: 2px solid #ffb3b3;
+  padding: 2rem 0;
+  flex-wrap: wrap;
+}
+
+/* Contenedor de imagen con superposición de ícono */
+.foto-perfil-contenedor {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
+  cursor: pointer;
+}
+
+.perfil-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #e0e0e0;
+}
+
+.icono-camara {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #e63946;
+  color: #fff;
+  border-radius: 50%;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Información de perfil */
+.perfil-datos {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.2rem;
+  padding-top: 0.5rem;
+}
+
+.perfil-datos p {
+  font-size: 1.1rem;
+  color: #8b0000;
+}
+
+.perfil-datos strong {
+  color: #d62828;
+}
+
+/* Input de archivo oculto */
+.input-file-oculto {
+  display: none;
+}
+
+/* Mensaje de éxito o error */
+.mensaje {
+  margin-top: 1.5rem;
+  color: #c1121f;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Botón cerrar sesión */
+.btn-cerrar-sesion {
+  display: block;
+  margin: 3rem auto 0 auto;
+  background: #ff6b6b;
+  color: white;
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-cerrar-sesion:hover {
+  background: #d90429;
+}

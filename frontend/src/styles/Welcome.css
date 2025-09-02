@@ -63,3 +63,13 @@
 .btn-secondary:hover {
     background-color: #b32400;
 }
+.admin-message {
+    font-size: 1rem;
+    color: #fff;
+    margin-top: 1rem;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  

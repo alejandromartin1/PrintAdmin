@@ -1,0 +1,163 @@
+/* Pendientes por Facturar - estilos */
+.pf__container {
+    max-width: 1200px;
+    margin: 5rem auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 280px; /* espacio para sidebar */
+}
+
+.pf__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.pf__title {
+    font-size: 2rem;
+    color: #e74c3c;
+    font-weight: 600;
+    margin: 0;
+}
+
+.pf__refresh-button {
+    background-color: #db3434;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.pf__refresh-button:hover {
+    background-color: #b92929;
+    transform: translateY(-1px);
+}
+
+.pf__refresh-button:disabled {
+    background-color: #f5bcbc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pf__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.pf__card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.pf__card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+
+.pf__card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ac1c1c;
+    padding-bottom: 0.5rem;
+}
+
+.pf__client-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #292929;
+}
+
+.pf__status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.pf__status--pending {
+    background-color: #dd4545;
+    color: white;
+}
+
+.pf__card-body p {
+    margin: 0.25rem 0;
+}
+
+/* NUEVOS ESTILOS */
+.pf__detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.35rem 0;
+    font-size: 0.95rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.pf__detail-label {
+    font-weight: 600;
+    color: #444; /* gris oscuro elegante */
+}
+
+.pf__detail-value {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Colores específicos */
+.pf__value-subtotal {
+    color: #3498db; /* azul para subtotal */
+}
+
+.pf__value-iva {
+    color: #e67e22; /* naranja para IVA */
+}
+
+.pf__value-total {
+    color: #028739; /* verde para total */
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.pf__card-footer {
+    margin-top: auto;
+}
+
+.pf__action-button {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background-color: #028739;
+    color: white;
+    font-weight: 500;
+}
+
+.pf__action-button:hover {
+    background-color: #015825;
+    transform: translateY(-1px);
+}
+
+.pf__action-button:disabled {
+    background-color: #359608;
+    cursor: not-allowed;
+    transform: none;
+}

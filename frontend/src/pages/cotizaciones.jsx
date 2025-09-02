@@ -22,7 +22,11 @@ const Cotizacion = () => {
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar la lista de clientes desde la API
+  const permisosUsuario = JSON.parse(localStorage.getItem("permisos")) || [];
+  const rol = localStorage.getItem("rol");
+  const esAdmin = rol === "Administrador";
+
+  // Cargar clientes
   useEffect(() => {
     const fetchClientes = async () => {
       setIsLoading(true);
@@ -44,6 +48,7 @@ const Cotizacion = () => {
     fetchClientes();
   }, []);
 
+  // Manejo de cambios en el formulario
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newProducto = {
@@ -51,7 +56,6 @@ const Cotizacion = () => {
       [name]: type === "checkbox" ? checked : value,
     };
 
-    // Calcula el total en tiempo real
     const cantidad = parseFloat(newProducto.cantidad) || 0;
     const precioUnitario = parseFloat(newProducto.precioUnitario) || 0;
     const subtotal = cantidad * precioUnitario;
@@ -65,6 +69,7 @@ const Cotizacion = () => {
     });
   };
 
+  // Agregar producto
   const agregarProducto = async () => {
     if (!cliente) {
       Swal.fire({
@@ -95,7 +100,7 @@ const Cotizacion = () => {
       });
       return;
     }
-    
+
     const nuevoProducto = {
       concepto: producto.concepto,
       cantidad: parseFloat(producto.cantidad),
@@ -103,7 +108,7 @@ const Cotizacion = () => {
       iva_porcentaje: producto.iva ? 16 : 0,
       total_final: parseFloat(producto.total)
     };
-    
+
     const subtotal = nuevoProducto.cantidad * nuevoProducto.precio_unitario;
     const iva = producto.iva ? subtotal * 0.16 : 0;
     const total = subtotal + iva;
@@ -133,7 +138,7 @@ const Cotizacion = () => {
         title: '¡Cotización creada!',
         showConfirmButton: false,
         timer: 1500
-      });    
+      });
     } catch (error) {
       console.error("Error al enviar la cotización:", error);
       Swal.fire({
@@ -147,6 +152,7 @@ const Cotizacion = () => {
     }
   };
 
+  // Mostrar/ocultar vista previa
   const toggleVistaPrevia = () => {
     if (cotizaciones.length === 0) {
       Swal.fire({
@@ -160,36 +166,108 @@ const Cotizacion = () => {
     setIsPreviewVisible(!isPreviewVisible);
   };
 
-  const exportarPDF = () => {
+  // 🔹 INICIAR SESIÓN GMAIL (FALTABA ESTA FUNCIÓN)
+   // 🔹 LOGIN con Gmail
+  const iniciarSesionGmail = () => {
+    const clientId = "79251556591-82p8lfapmnk56mo2q82ismu5a8sioml9.apps.googleusercontent.com";
+    const scope = "https://www.googleapis.com/auth/gmail.send";
+    const redirectUri = window.location.origin;
+
+    const authUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=token` +
+      `&scope=${encodeURIComponent(scope)}`;
+
+    window.location.href = authUrl;
+  };
+
+  // 🔹 Exportar solo a PDF (descargar)
+  const handleExportarPDF = async () => {
     if (cotizaciones.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'No hay productos',
-        text: 'Agrega al menos un producto para generar el PDF',
-        confirmButtonColor: '#f0ad4e',
-      });
+      return Swal.fire("No hay productos", "Agrega al menos un producto", "warning");
+    }
+
+    try {
+      await generarPDF(cotizaciones, clienteNombre, logo, false); // false = descarga directa
+      Swal.fire("Éxito", "PDF exportado correctamente", "success");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "No se pudo exportar el PDF", "error");
+    }
+  };
+
+  // 🔹 Enviar cotización al correo con PDF adjunto
+  const handleEnviarCorreo = async () => {
+    if (cotizaciones.length === 0) {
+      return Swal.fire("No hay productos", "Agrega al menos un producto", "warning");
+    }
+
+    const token = localStorage.getItem("gmailToken");
+    if (!token) {
+      iniciarSesionGmail();
       return;
     }
-    
-    generarPDF(cotizaciones, clienteNombre, logo);
-    // Resetear el formulario después de exportar
-    setCotizaciones([]);
-    setProducto({
-      concepto: "",
-      cantidad: "",
-      precioUnitario: "",
-      iva: false,
-      total: "0.00",
-      subtotal: "0.00",
+
+    const { value: formValues } = await Swal.fire({
+      title: "Enviar Cotización",
+      html:
+        `<input id="swal-input1" class="swal2-input" placeholder="Para (correo)">` +
+        `<input id="swal-input2" class="swal2-input" placeholder="Asunto">`,
+      focusConfirm: false,
+      preConfirm: () => {
+        return {
+          para: document.getElementById("swal-input1").value,
+          asunto: document.getElementById("swal-input2").value,
+        };
+      },
+      showCancelButton: true,
+      confirmButtonText: "Enviar",
+      cancelButtonText: "Cancelar",
     });
-    setCliente("");
-    setClienteNombre("");
+
+    if (!formValues) return;
+
+    const { para, asunto } = formValues;
+    const pdfBase64 = await generarPDF(cotizaciones, clienteNombre, logo, true); // true = retorna base64
+
+    try {
+      const mensaje =
+        `To: ${para}\r\n` +
+        `Subject: ${asunto}\r\n` +
+        "Content-Type: multipart/mixed; boundary=foo_bar_baz\r\n\r\n" +
+        "--foo_bar_baz\r\n" +
+        "Content-Type: text/plain; charset=UTF-8\r\n\r\n" +
+        "Adjunto encontrarás la cotización.\r\n\r\n" +
+        "--foo_bar_baz\r\n" +
+        "Content-Type: application/pdf; name=cotizacion.pdf\r\n" +
+        "Content-Disposition: attachment; filename=cotizacion.pdf\r\n" +
+        "Content-Transfer-Encoding: base64\r\n\r\n" +
+        pdfBase64 +
+        "\r\n--foo_bar_baz--";
+
+      const raw = btoa(unescape(encodeURIComponent(mensaje)))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+
+      await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ raw }),
+      });
+
+      Swal.fire("Éxito", "Correo enviado con PDF adjunto", "success");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "No se pudo enviar el correo", "error");
+    }
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Generar Cotización</h2>
-      
+
       <div className={styles.formSection}>
         <div className={styles.formGroup}>
           <label className={styles.label}>Cliente:</label>
@@ -199,9 +277,9 @@ const Cotizacion = () => {
             onChange={(e) => {
               const idSeleccionado = e.target.value;
               const clienteSeleccionado = clientes.find(c => c.id.toString() === idSeleccionado);
-          
+
               setCliente(idSeleccionado);
-          
+
               if (clienteSeleccionado) {
                 setClienteNombre(`${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`);
               } else {
@@ -278,31 +356,43 @@ const Cotizacion = () => {
         </div>
 
         <div className={styles.actionButtons}>
-          <button 
-            className={`${styles.button} ${styles.primary}`} 
-            onClick={agregarProducto}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Procesando...' : 'Agregar Producto'}
-          </button>
-          <button 
-            className={`${styles.button} ${styles.secondary}`} 
-            onClick={toggleVistaPrevia}
-          >
-            {isPreviewVisible ? "Ocultar Vista Previa" : "Ver Vista Previa"}
-          </button>
+          {(esAdmin || permisosUsuario.includes("crear_cotizacion")) && (
+            <button 
+              className={`${styles.button} ${styles.primary}`} 
+              onClick={agregarProducto}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Procesando...' : 'Agregar Producto'}
+            </button>
+          )}
+
+          {(esAdmin || permisosUsuario.includes("Ver_vista_previa")) && (
+            <button 
+              className={`${styles.button} ${styles.secondary}`} 
+              onClick={toggleVistaPrevia}
+            >
+              {isPreviewVisible ? "Ocultar Vista Previa" : "Ver Vista Previa"}
+            </button>
+            
+          )}
         </div>
       </div>
 
-      {isPreviewVisible && (
-        <VistaPrevia 
-          cotizaciones={cotizaciones}
-          cliente={clienteNombre}
-          exportarPDF={exportarPDF}
-        />
-      )}
+      <div className={`${styles.vistaPreviaWrapper} ${isPreviewVisible ? styles.visible : ""}`}>
+      <VistaPrevia 
+  cotizaciones={cotizaciones}
+  cliente={clienteNombre}
+  exportarPDF={handleExportarPDF}
+  enviarCorreo={handleEnviarCorreo}
+/>
+
+           
+          <button onClick={handleEnviarCorreo} style={{ background: "red", color: "white", padding: "8px 15px" }}>
+            📧 Enviar por Correo (PDF)
+          </button>
+      </div>
     </div>
   );
 };
 
-export default Cotizacion;
+export default Cotizacion;  

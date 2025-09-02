@@ -1,201 +1,350 @@
+/* Contenedor principal */
 .inventario-container {
     max-width: 1200px;
-    background-color: #ffffff;
-    border-radius: 15px; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
-    margin-top: 45px;
-    margin: 7rem auto;
+    margin: 6rem auto;
     padding: 3rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin-left: 300px; /* Espacio para el sidebar */
-}
-
-.inventario-title{
-    text-align: center;
-    font-size: 36px; 
-    color: #333; 
+    margin-left: 300px; /* espacio sidebar */
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Encabezado */
+  .inventario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .inventario-header h1 {
+    font-size: 1.8rem;
+    color: #e74c3c;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .inventario-header hr {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Botón agregar */
+  .btn-agregar {
+    background-color: #008f13;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
     font-weight: 600;
-}
-
-/* modal */
-
-/* Fondo oscuro del modal */
-.modal-overlay {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+  }
+  
+  .btn-agregar:hover {
+    background-color: #048439;
+    transform: translateY(-2px);
+  }
+  
+  .btn-agregar:disabled {
+    background-color: #25a1a9;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Contenedor tabla */
+  .Tabla-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+  }
+  
+  /* Tabla */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  th {
+    background-color: #f86f6f;
+    color: white;
+    padding: 0.8rem;
+    text-align: left;
+  }
+  
+  td {
+    padding: 0.8rem;
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  /* Estado */
+  .estado {
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    display: inline-block;
+    min-width: 90px;
+    text-align: center;
+  }
+  
+  .estado.disponible {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .estado.pocas-unidades {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .estado.agotado {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  /* Contenedor botones acciones */
+  .inventario-acciones {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  
+  /* Botones acción */
+  .inventario-acciones button {
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    transition: background-color 0.2s ease;
+    min-width: 38px;
+    height: 32px;
+    color: white;
+  }
+  
+  .btn-delete {
+    background-color: #e74c3c;
+  }
+  
+  .btn-delete:hover {
+    background-color: #c0392b;
+  }
+  
+  .btn-edit {
+    background-color: #038d00;
+  }
+  
+  .btn-edit:hover {
+    background-color: #219903;
+  }
+  
+  .btn-decrease {
+    background-color: #6c757d;
+    border-radius: 50%;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    font-weight: bold;
+    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  
+  .btn-decrease:hover {
+    background-color: #5a6268;
+  }
+  
+  .btn-increase {
+    background-color: #008f13;
+    border-radius: 50%;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    font-weight: bold;
+    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  
+  .btn-increase:hover {
+    background-color: #048439;
+  }
+  
+  /* Modal overlay */
+  .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-/* Contenedor del modal */
-.modal {
+    z-index: 1000;
+    animation: empleados-fadeIn 0.3s;
+  }
+  
+  /* Modales */
+  .modal,
+  .modal2 {
     background: white;
-    padding: 20px;
-    border-radius: 15px;
-    width: 420px;
-    text-align: center;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    transform: translateY(-20px);
-    opacity: 0;
-    animation: fadeIn 0.3s forwards;
-}
-
-/* Animación del modal */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Botones del modal */
-.modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: 10px;
-    margin-top: 15px;
-}
-
-.btn-cancel {
-    background: gray;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn-confirm {
-    background: red;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn-delete {
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 10px;
-}
-
-.btn-edit {
-    background: orange;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn-decrease {
-    background: rgb(0, 0, 0);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-agregar {
-    background: green;
-    color: white;
-    border: none;
-    padding: 7px 10px;
     border-radius: 10px;
-    cursor: pointer;
-    margin-bottom: 10px;
-}
-
-.btn-delete:hover,
-.btn-confirm:hover {
-    background: darkred;
-}
-
-.btn-cancel:hover {
-    background: darkgray;
-}
-
-/* Estado: Disponible */
-.estado.disponible {
-    background-color: green;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-/* Estado: Pocas unidades */
-.estado.pocas-unidades {
-    background-color: orange;
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-/* Estado: Agotado */
-.estado.agotado {
-    background-color: red;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-/* modal de agregar y editar */
-.modal2 {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
+    width: 100%;
+    max-width: 500px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    animation: empleados-slideDown 0.3s;
     text-align: center;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* 🔹 Estilos del formulario */
-.modal2 form {
+  }
+  
+  .modal2 {
+    max-width: 420px;
+  }
+  
+  /* Títulos modal */
+  .modal-title {
+    font-size: 1.4rem;
+    color: #ff2727;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Texto eliminar modal */
+  .modal-delete-text {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #494949;
+  }
+  
+  .modal-delete-text strong {
+    color: #000000;
+  }
+  
+  /* Formulario modal */
+  .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.modal2 label {
+    gap: 1.2rem;
     text-align: left;
-    font-weight: bold;
-}
-
-.modal2 input, .modal textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* 🔹 Botones */
-.modal-buttonss {
+  }
+  
+  .modal-form label {
+    font-weight: 600;
+    color: #34495e;
+    font-size: 0.95rem;
+  }
+  
+  .modal-form input,
+  .modal-form textarea {
+    padding: 0.7rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+  }
+  
+  .modal-form input:focus,
+  .modal-form textarea:focus {
+    border-color: #f66464;
+    outline: none;
+  }
+  
+  /* Botones modal */
+  .modal-buttons {
     display: flex;
-    justify-content: space-around;
-    margin-top: 15px;
-}
-
-.btn-cancelar { background: gray; color: white; border-radius: 10px; padding: 7px 10px; border: none;}
-.btn-cancelar:hover {
-    background: darkgray;
-}
-.btn-confirmar { background: green; color: white; border-radius: 10px; padding: 7px 10px; border: none;}
-.btn-confirmar:hover {
-    background: rgba(0, 128, 0, 0.73);
-}
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+  
+  .btn-cancelar,
+  .btn-cancel,
+  .btn-confirmar,
+  .btn-confirm,
+  .btn-eliminar {
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-cancelar,
+  .btn-cancel {
+    background-color: #fe3c3c;
+    color: #ffffff;
+    border: 1px solid #bdc3c7;
+  }
+  
+  .btn-cancelar:hover,
+  .btn-cancel:hover {
+    background-color: #fa6f6f;
+  }
+  
+  .btn-confirmar,
+  .btn-confirm {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+  }
+  
+  .btn-confirmar:hover,
+  .btn-confirm:hover {
+    background-color: #27ae60;
+  }
+  
+  .btn-eliminar {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+  }
+  
+  .btn-eliminar:hover {
+    background-color: #c0392b;
+  }
+  
+  /* Animaciones */
+  @keyframes empleados-fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes empleados-slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

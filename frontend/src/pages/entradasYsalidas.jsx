@@ -2,38 +2,51 @@ import "../styles/entradasysalidas.css";
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
 
 const EntradasySalidas = () => {
   const [clientes, setClientes] = useState([]);
   const [trabajos, setTrabajos] = useState([]);
-  const [gastos, setGastos] = useState([]); 
+  const [gastos, setGastos] = useState([]);
   const [activeTab, setActiveTab] = useState('entradas');
   const [editingTrabajo, setEditingTrabajo] = useState(null);
   const [editingGasto, setEditingGasto] = useState(null);
+  const [mostrarEvidencia, setMostrarEvidencia] = useState(false);
+  const [evidenciaFile, setEvidenciaFile] = useState(null);
+  const [imagenModal, setImagenModal] = useState(null);
+  const [deseaFacturar, setDeseaFacturar] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const navigate = useNavigate();
+
+    const permisosUsuario = JSON.parse(localStorage.getItem("permisos")) || [];
+    const rol = localStorage.getItem("rol");
+    const esAdmin = rol === "Administrador";
 
   const [nuevoTrabajo, setNuevoTrabajo] = useState({
     cliente:'', 
-    fecha: '',
+    fecha: new Date().toISOString().split("T")[0],
     concepto: '',
     cantidad_total: '',
     abono: '',
     saldo: '',
-    estado: 'pendiente'
+    estado: 'pendiente',
+    metodo_pago: ''
   });
 
   const [nuevoGasto, setNuevoGasto] = useState({
     descripcion: '',
     cantidad: '',
-    fecha: '',
+    fecha: new Date().toISOString().split("T")[0],
   });
 
   useEffect(() => {
-    if (activeTab === 'entradas') {
+    fetchClientes();
+    if(activeTab === 'entradas'){
       fetchEntradas();
     } else {
       fetchSalidas();
     }
-    fetchClientes();
   }, [activeTab]);
 
   const fetchEntradas = async () => {
@@ -68,6 +81,17 @@ const EntradasySalidas = () => {
     setNuevoTrabajo(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleMetodoPagoChange = (e) => {
+    const valor = e.target.value;
+    handleTrabajoChange(e);
+    if (valor === "transferencia" || valor === "deposito") {
+      setMostrarEvidencia(true);
+    } else {
+      setMostrarEvidencia(false);
+      setEvidenciaFile(null);
+    }
+  };
+
   const handleGastoChange = (e) => {
     const { name, value } = e.target;
     setNuevoGasto(prev => ({ ...prev, [name]: value }));
@@ -76,40 +100,51 @@ const EntradasySalidas = () => {
   const agregarTrabajo = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/entradas/crear', {
-        id_cliente: nuevoTrabajo.cliente,
-        fecha: nuevoTrabajo.fecha,
-        concepto: nuevoTrabajo.concepto,
-        cantidad_total: nuevoTrabajo.cantidad_total,
-        abono: nuevoTrabajo.abono,
-        saldo: nuevoTrabajo.cantidad_total - nuevoTrabajo.abono,
-        estado: nuevoTrabajo.estado
+      const formData = new FormData();
+      formData.append('id_cliente', nuevoTrabajo.cliente);
+      formData.append('fecha', nuevoTrabajo.fecha);
+      formData.append('concepto', nuevoTrabajo.concepto);
+      formData.append('cantidad_total', nuevoTrabajo.cantidad_total);
+      formData.append('abono', nuevoTrabajo.abono);
+      formData.append('saldo', nuevoTrabajo.cantidad_total - nuevoTrabajo.abono);
+      formData.append('estado', nuevoTrabajo.estado);
+      formData.append('metodo_pago', nuevoTrabajo.metodo_pago);
+      if (mostrarEvidencia && evidenciaFile) {
+        formData.append('evidencia', evidenciaFile);
+      }
+      const res = await axios.post('http://localhost:5000/api/entradas/crear', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-
       await fetchEntradas();
       setNuevoTrabajo({
         cliente: '',
-        fecha: '',
+        fecha: new Date().toISOString().split("T")[0],
         concepto: '',
         cantidad_total: '',
         abono: '',
         saldo: '',
-        estado: 'pendiente'
+        estado: 'pendiente',
+        metodo_pago: ''
       });
-
+      setMostrarEvidencia(false);
+      setEvidenciaFile(null);
       Swal.fire('¡Éxito!', 'Trabajo registrado con éxito.', 'success');
+      if(deseaFacturar){
+        navigate(`/factura/${res.data.id}`);
+      }
+      setDeseaFacturar(false);
     } catch (error) {
       console.error('Error al agregar trabajo:', error);
       Swal.fire('Error', 'No se pudo registrar el trabajo.', 'error');
     }
   };
-  
+
   const agregarGasto = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/salidas/crear', nuevoGasto);
       await fetchSalidas();
-      setNuevoGasto({ fecha: '', descripcion: '', cantidad: '' });
+      setNuevoGasto({ descripcion: '', cantidad: '', fecha: new Date().toISOString().split("T")[0] });
       Swal.fire('¡Éxito!', 'Gasto registrado con éxito.', 'success');
     } catch (error) {
       console.error('Error al agregar gasto:', error);
@@ -126,39 +161,52 @@ const EntradasySalidas = () => {
       cantidad_total: trabajo.cantidad_total,
       abono: trabajo.abono,
       saldo: trabajo.saldo,
-      estado: trabajo.estado
+      estado: trabajo.estado,
+      metodo_pago: trabajo.metodo_pago || ''
     });
-  };
-  
-  const actualizarTrabajo = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(`http://localhost:5000/api/entradas/editar/${editingTrabajo}`, {
-        id_cliente: nuevoTrabajo.cliente,
-        fecha: nuevoTrabajo.fecha,
-        concepto: nuevoTrabajo.concepto,
-        cantidad_total: nuevoTrabajo.cantidad_total,
-        abono: nuevoTrabajo.abono,
-        saldo: nuevoTrabajo.cantidad_total - nuevoTrabajo.abono,
-        estado: nuevoTrabajo.estado
-      });
-      await fetchEntradas();
-      setEditingTrabajo(null);
-      setNuevoTrabajo({
-        cliente: '',
-        fecha: '',
-        concepto: '',
-        cantidad_total: '',
-        abono: '',
-        saldo: '',
-        estado: 'pendiente'
-      });
-      Swal.fire('¡Actualizado!', 'Trabajo actualizado con éxito.', 'success');
-    } catch (error) {
-      console.error('Error al actualizar trabajo:', error);
-      Swal.fire('Error', 'No se pudo actualizar el trabajo.', 'error');
+    if (trabajo.metodo_pago === "transferencia" || trabajo.metodo_pago === "deposito") {
+      setMostrarEvidencia(true);
+    } else {
+      setMostrarEvidencia(false);
     }
+    setEvidenciaFile(null);
   };
+
+  const actualizarTrabajo = async (e) => {
+  e.preventDefault();
+  try {
+    if (!editingTrabajo) return;
+    const trabajoActual = trabajos.find(t => t.id === editingTrabajo);
+    if (!trabajoActual) return;
+
+    const datosActualizar = {
+      abono: Number(nuevoTrabajo.abono),
+      metodo_pago: nuevoTrabajo.metodo_pago || trabajoActual.metodo_pago,
+      evidencia: evidenciaFile || null
+    };
+
+    await axios.put(`http://localhost:5000/api/entradas/editar/${editingTrabajo}`, datosActualizar);
+    await fetchEntradas();
+    setEditingTrabajo(null);
+    setNuevoTrabajo({
+      cliente: '',
+      fecha: new Date().toISOString().split("T")[0],
+      concepto: '',
+      cantidad_total: '',
+      abono: '',
+      saldo: '',
+      estado: 'pendiente',
+      metodo_pago: ''
+    });
+    setMostrarEvidencia(false);
+    setEvidenciaFile(null);
+    Swal.fire('¡Éxito!', 'Trabajo actualizado correctamente.', 'success');
+  } catch (error) {
+    console.error('Error al actualizar trabajo:', error.response?.data || error.message);
+    Swal.fire('Error', 'No se pudo actualizar el trabajo.', 'error');
+  }
+};
+
 
   const eliminarTrabajo = async (id) => {
     const confirm = await Swal.fire({
@@ -170,13 +218,12 @@ const EntradasySalidas = () => {
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, eliminar'
     });
-
-    if (confirm.isConfirmed) {
+    if(confirm.isConfirmed){
       try {
         await axios.delete(`http://localhost:5000/api/entradas/eliminar/${id}`);
         await fetchEntradas();
         Swal.fire('Eliminado', 'El trabajo fue eliminado.', 'success');
-      } catch (error) {
+      } catch(error){
         console.error('Error al eliminar trabajo:', error);
         Swal.fire('Error', 'No se pudo eliminar el trabajo.', 'error');
       }
@@ -198,9 +245,9 @@ const EntradasySalidas = () => {
       await axios.put(`http://localhost:5000/api/salidas/editar/${editingGasto}`, nuevoGasto);
       await fetchSalidas();
       setEditingGasto(null);
-      setNuevoGasto({ fecha: '', descripcion: '', cantidad: '' });
+      setNuevoGasto({ descripcion: '', cantidad: '', fecha: new Date().toISOString().split("T")[0] });
       Swal.fire('¡Actualizado!', 'Gasto actualizado correctamente.', 'success');
-    } catch (error) {
+    } catch(error){
       console.error('Error al actualizar gasto:', error);
       Swal.fire('Error', 'No se pudo actualizar el gasto.', 'error');
     }
@@ -216,18 +263,22 @@ const EntradasySalidas = () => {
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, eliminar'
     });
-
-    if (confirm.isConfirmed) {
-      try {
+    if(confirm.isConfirmed){
+      try{
         await axios.delete(`http://localhost:5000/api/salidas/eliminar/${id}`);
         await fetchSalidas();
         Swal.fire('Eliminado', 'El gasto fue eliminado.', 'success');
-      } catch (error) {
+      } catch(error){
         console.error('Error al eliminar gasto:', error);
         Swal.fire('Error', 'No se pudo eliminar el gasto.', 'error');
       }
     }
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTrabajos = trabajos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentGastos = gastos.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className="es-container">
@@ -236,132 +287,98 @@ const EntradasySalidas = () => {
       </header>
 
       <div className="es-tabs-container">
-        <button 
-          className={`es-tab-button ${activeTab === 'entradas' ? 'es-active' : ''}`}
-          onClick={() => setActiveTab('entradas')}
-        >
-          Entradas (Trabajos)
-        </button>
-        <button 
-          className={`es-tab-button ${activeTab === 'salidas' ? 'es-active' : ''}`}
-          onClick={() => setActiveTab('salidas')}
-        >
-          Salidas (Gastos)
-        </button>
+        <button className={`es-tab-button ${activeTab === 'entradas' ? 'es-active' : ''}`} onClick={()=>setActiveTab('entradas')}>Entradas (Trabajos)</button>
+        <button className={`es-tab-button ${activeTab === 'salidas' ? 'es-active' : ''}`} onClick={()=>setActiveTab('salidas')}>Salidas (Gastos)</button>
       </div>
 
       {activeTab === 'entradas' ? (
         <div className="es-content-section">
+          {/* FORMULARIO ENTRADAS */}
           <div className="es-form-container">
-            <h2 className="es-form-title"> + Registrar Nuevo Trabajo</h2>
+            <h2 className="es-form-title">{editingTrabajo ? "Editar Trabajo" : "+ Registrar Nuevo Trabajo"}</h2>
             <form className="es-form" onSubmit={editingTrabajo ? actualizarTrabajo : agregarTrabajo}>
               <div className="es-form-group">
                 <label className="es-label">Cliente:</label>
-                <select
-                  className="es-select"
-                  name="cliente"
-                  value={nuevoTrabajo.cliente}
-                  onChange={(e) => setNuevoTrabajo({ ...nuevoTrabajo, cliente: e.target.value })}
-                >
+                <select className="es-select" name="cliente" value={nuevoTrabajo.cliente} onChange={handleTrabajoChange} disabled={!!editingTrabajo} required>
                   <option value="" disabled>Seleccione un cliente</option>
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} {c.apellido}
-                    </option>
-                  ))}
+                  {clientes.map(c => <option key={`cliente-${c.id}`} value={c.id}>{c.nombre} {c.apellido}</option>)}
                 </select>
               </div>
 
               <div className="es-form-group">
                 <label className="es-label">Descripción:</label>
-                <textarea
-                  className="es-textarea"
-                  name="concepto"
-                  value={nuevoTrabajo.concepto}
-                  onChange={handleTrabajoChange}
-                  required
-                />
+                <textarea className="es-textarea" name="concepto" value={nuevoTrabajo.concepto} onChange={handleTrabajoChange} required disabled={!!editingTrabajo} />
               </div>
 
               <div className="es-form-row">
                 <div className="es-form-group">
                   <label className="es-label">Cantidad Total ($):</label>
-                  <input
-                    className="es-input"
-                    type="number"
-                    name="cantidad_total"
-                    value={nuevoTrabajo.cantidad_total}
-                    onChange={handleTrabajoChange}
-                    required
-                  />
+                  <input className="es-input" type="number" name="cantidad_total" value={nuevoTrabajo.cantidad_total} onChange={handleTrabajoChange} required disabled={!!editingTrabajo} />
                 </div>
-
                 <div className="es-form-group">
                   <label className="es-label">Abono ($):</label>
-                  <input
-                    className="es-input"
-                    type="number"
-                    name="abono"
-                    value={nuevoTrabajo.abono}
-                    onChange={handleTrabajoChange}
-                    required
-                  />
+                  <input className="es-input" type="number" name="abono" value={nuevoTrabajo.abono} onChange={handleTrabajoChange} required />
                 </div>
-                
                 <div className="es-form-group">
                   <label className="es-label">Fecha:</label>
-                  <input
-                    className="es-input"
-                    type="date"
-                    name="fecha"
-                    value={nuevoTrabajo.fecha}
-                    onChange={handleTrabajoChange}
-                    required
-                  />
+                  <input className="es-input" type="date" name="fecha" value={nuevoTrabajo.fecha} onChange={handleTrabajoChange} required />
                 </div>
-                
                 <div className="es-form-group">
                   <label className="es-label">Estado:</label>
-                  <select
-                    className="es-select"
-                    name="estado"
-                    value={nuevoTrabajo.estado}
-                    onChange={handleTrabajoChange}
-                  >
+                  <select className="es-select" name="estado" value={nuevoTrabajo.estado} onChange={handleTrabajoChange}>
                     <option value="pendiente">Pendiente</option>
                     <option value="completado">Completado</option>
                   </select>
                 </div>
               </div>
-              
+
+              <div className="es-form-group">
+                <label className="es-label">Método de Pago:</label>
+                <select className="es-select" name="metodo_pago" value={nuevoTrabajo.metodo_pago || ''} onChange={handleMetodoPagoChange} required>
+                  <option value="" disabled>Seleccione un método</option>
+                  <option value="efectivo">Efectivo</option>
+                  <option value="deposito">Depósito</option>
+                  <option value="transferencia">Transferencia</option>
+                </select>
+                {mostrarEvidencia && (
+                  <div className="es-evidencia-modal">
+                    {!editingTrabajo ? (
+                      <>
+                        <label className="es-label">Subir evidencia de pago:</label>
+                        <input type="file" accept="image/*" onChange={(e)=>setEvidenciaFile(e.target.files[0])} />
+                        {evidenciaFile && <p style={{marginTop:'8px'}}>Archivo nuevo: {evidenciaFile.name}</p>}
+                      </>
+                    ) : (
+                      <div style={{marginTop:'8px'}}>
+                        <p>Evidencia registrada:</p>
+                        <img src={`http://localhost:5000/uploads/${trabajos.find(t=>t.id===editingTrabajo)?.evidencia}`} alt="Evidencia actual" style={{width:'120px', borderRadius:'8px'}} />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="es-form-group">
+                <label className="es-label">
+                  <input type="checkbox" checked={deseaFacturar} onChange={e=>setDeseaFacturar(e.target.checked)} /> ¿Desea facturar?
+                </label>
+              </div>
+
               <div className="es-form-actions">
                 {editingTrabajo && (
-                  <button 
-                    type="button" 
-                    className="es-cancel-button" 
-                    onClick={() => {
-                      setEditingTrabajo(null);
-                      setNuevoTrabajo({
-                        cliente: '',
-                        fecha: '',
-                        concepto: '',
-                        cantidad_total: '',
-                        abono: '',
-                        saldo: '',
-                        estado: 'pendiente'
-                      });
-                    }}
-                  >
-                    Cancelar
-                  </button>
+                  <button type="button" className="es-cancel-button" onClick={()=>{
+                    setEditingTrabajo(null);
+                    setNuevoTrabajo({
+                      cliente:'', fecha:new Date().toISOString().split("T")[0], concepto:'', cantidad_total:'', abono:'', saldo:'', estado:'pendiente', metodo_pago:''
+                    });
+                  }}>Cancelar</button>
                 )}
-                <button type="submit" className="es-submit-button">
-                  {editingTrabajo ? 'Actualizar Trabajo' : 'Registrar Trabajo'}
-                </button>
+                <button type="submit" className="es-submit-button">{editingTrabajo ? 'Actualizar Trabajo' : 'Registrar Trabajo'}</button>
               </div>
             </form>
           </div>
-          
+
+          {/* LISTADO ENTRADAS */}
           <div className="es-list-container">
             <h2 className="es-list-title">Listado de Trabajos</h2>
             <div className="es-table-responsive">
@@ -376,38 +393,36 @@ const EntradasySalidas = () => {
                     <th>Abono</th>
                     <th>Saldo</th>
                     <th>Estado</th>
+                    <th>Método de Pago</th>
+                    <th>Evidencia</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {trabajos.map((trabajo) => (
-                    <tr key={trabajo.id}>
-                      <td>{trabajo.id}</td>
-                      <td>{trabajo.nombre} {trabajo.apellido}</td>
-                      <td>{new Date(trabajo.fecha).toLocaleDateString('es-ES')}</td>
-                      <td>{trabajo.concepto}</td>
-                      <td>${(trabajo.cantidad_total || 0).toLocaleString()}</td>
-                      <td>${(trabajo.abono || 0).toLocaleString()}</td>
-                      <td>${(trabajo.saldo || 0).toLocaleString()}</td>
+                  {currentTrabajos.map((t, index) => (
+  <tr key={`trabajo-${t.id}-${index}`}>
+    <td>{t.id}</td>
+                      <td>{t.nombre} {t.apellido}</td>
+                      <td>{new Date(t.fecha).toLocaleDateString('es-ES')}</td>
+                      <td>{t.concepto}</td>
+                      <td>${(t.cantidad_total||0).toLocaleString()}</td>
+                      <td>${(t.abono||0).toLocaleString()}</td>
+                      <td>${(t.saldo||0).toLocaleString()}</td>
+                      <td><span className={`es-estado-badge ${t.estado}`}>{t.estado}</span></td>
+                      <td>{t.metodo_pago}</td>
                       <td>
-                        <span className={`es-estado-badge ${trabajo.estado}`}>
-                          {trabajo.estado}
-                        </span>
+                        {t.evidencia ? (
+                          <img src={`http://localhost:5000/uploads/${t.evidencia}`} alt="Evidencia" className="es-thumbnail" onClick={()=>setImagenModal(`http://localhost:5000/uploads/${t.evidencia}`)} />
+                        ) : <span>Sin evidencia</span>}
                       </td>
                       <td>
                         <div className="es-action-buttons">
-                          <button 
-                            className="es-edit-button" 
-                            onClick={() => editarTrabajo(trabajo)}
-                          >
-                            Editar
-                          </button>
-                          <button 
-                            className="es-delete-button" 
-                            onClick={() => eliminarTrabajo(trabajo.id)}
-                          >
-                            Eliminar
-                          </button>
+                            {(esAdmin || permisosUsuario.includes("editar_trabajo")) && (
+                          <button className="es-edit-button" onClick={()=>editarTrabajo(t)}>Editar</button>
+                           )}
+                            {(esAdmin || permisosUsuario.includes("eliminar_trabajo")) && (
+                          <button className="es-delete-button" onClick={()=>eliminarTrabajo(t.id)}>Eliminar</button>
+                        )}
                         </div>
                       </td>
                     </tr>
@@ -416,69 +431,54 @@ const EntradasySalidas = () => {
               </table>
             </div>
           </div>
+
+          {/* PAGINACIÓN */}
+          <div className="es-pagination">
+            {Array.from({ length: Math.ceil(trabajos.length/itemsPerPage) }, (_, i) => (
+              <button key={`page-trabajo-${i+1}`} onClick={()=>setCurrentPage(i+1)} className={currentPage===i+1?'es-page-button active':'es-page-button'}>{i+1}</button>
+            ))}
+          </div>
+
+          {imagenModal && (
+  <div className="es-modal-overlay" onClick={() => setImagenModal(null)}>
+    <div className="es-modal-content" onClick={e => e.stopPropagation()}>
+      <button className="es-modal-close" onClick={() => setImagenModal(null)}>×</button>
+      <img src={imagenModal} alt="Evidencia" />
+    </div>
+  </div>
+)}
         </div>
       ) : (
         <div className="es-content-section">
+          {/* FORMULARIO GASTOS */}
           <div className="es-form-container">
-            <h2 className="es-form-title">-Registrar Nuevo Gasto</h2>
+            <h2 className="es-form-title">{editingGasto ? "Editar Gasto" : "+ Registrar Nuevo Gasto"}</h2>
             <form className="es-form" onSubmit={editingGasto ? actualizarGasto : agregarGasto}>
               <div className="es-form-group">
                 <label className="es-label">Descripción:</label>
-                <textarea
-                  className="es-textarea"
-                  name="descripcion"
-                  value={nuevoGasto.descripcion}
-                  onChange={handleGastoChange}
-                  required
-                />
+                <textarea className="es-textarea" name="descripcion" value={nuevoGasto.descripcion} onChange={handleGastoChange} required />
               </div>
-              
-              <div className="es-form-row">
-                <div className="es-form-group">
-                  <label className="es-label">Cantidad ($):</label>
-                  <input
-                    className="es-input"
-                    type="number"
-                    name="cantidad"
-                    value={nuevoGasto.cantidad}
-                    onChange={handleGastoChange}
-                    required
-                  />
-                </div>
-                
-                <div className="es-form-group">
-                  <label className="es-label">Fecha:</label>
-                  <input
-                    className="es-input"
-                    type="date"
-                    name="fecha"
-                    value={nuevoGasto.fecha}
-                    onChange={handleGastoChange}
-                    required
-                  />
-                </div>
+
+              <div className="es-form-group">
+                <label className="es-label">Cantidad ($):</label>
+                <input className="es-input" type="number" name="cantidad" value={nuevoGasto.cantidad} onChange={handleGastoChange} required />
               </div>
-              
+
+              <div className="es-form-group">
+                <label className="es-label">Fecha:</label>
+                <input className="es-input" type="date" name="fecha" value={nuevoGasto.fecha} onChange={handleGastoChange} required />
+              </div>
+
               <div className="es-form-actions">
-                <button type="submit" className="es-submit-button">
-                  {editingGasto ? 'Actualizar Gasto' : 'Registrar Gasto'}
-                </button>
                 {editingGasto && (
-                  <button 
-                    type="button" 
-                    className="es-cancel-button" 
-                    onClick={() => {
-                      setEditingGasto(null);
-                      setNuevoGasto({ fecha: "", descripcion: "", cantidad: "" });
-                    }}
-                  >
-                    Cancelar
-                  </button>
+                  <button type="button" className="es-cancel-button" onClick={()=>{ setEditingGasto(null); setNuevoGasto({ descripcion:'', cantidad:'', fecha:new Date().toISOString().split("T")[0] }); }}>Cancelar</button>
                 )}
+                <button type="submit" className="es-submit-button">{editingGasto ? 'Actualizar Gasto' : 'Registrar Gasto'}</button>
               </div>
             </form>
           </div>
-          
+
+          {/* LISTADO GASTOS */}
           <div className="es-list-container">
             <h2 className="es-list-title">Listado de Gastos</h2>
             <div className="es-table-responsive">
@@ -486,33 +486,27 @@ const EntradasySalidas = () => {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Fecha</th>
                     <th>Descripción</th>
-                    <th>Cantidad</th>
+                    <th>Cantidad ($)</th>
+                    <th>Fecha</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {gastos.map((gasto) => (
-                    <tr key={gasto.id}>
-                      <td>{gasto.id}</td>
-                      <td>{new Date(gasto.fecha).toLocaleDateString('es-ES')}</td>
+                  {currentGastos.map((gasto, index) => (
+  <tr key={`gasto-${gasto.id}-${index}`}>
+    <td>{gasto.id}</td>
                       <td>{gasto.descripcion}</td>
-                      <td>${gasto.cantidad.toLocaleString()}</td>
+                      <td>${Number(gasto.cantidad).toLocaleString()}</td>
+                      <td>{new Date(gasto.fecha).toLocaleDateString('es-ES')}</td>
                       <td>
                         <div className="es-action-buttons">
-                          <button 
-                            className="es-edit-button" 
-                            onClick={() => editarGasto(gasto)}
-                          >
-                            Editar
-                          </button>
-                          <button 
-                            className="es-delete-button" 
-                            onClick={() => eliminarGasto(gasto.id)}
-                          >
-                            Eliminar
-                          </button>
+                           {(esAdmin || permisosUsuario.includes("editar_gasto")) && (
+                          <button className="es-edit-button" onClick={()=>editarGasto(gasto)}>Editar</button>
+                             )}
+                              {(esAdmin || permisosUsuario.includes("eliminar_gasto")) && (
+                          <button className="es-delete-button" onClick={()=>eliminarGasto(gasto.id)}>Eliminar</button>
+                            )}
                         </div>
                       </td>
                     </tr>
@@ -520,6 +514,13 @@ const EntradasySalidas = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* PAGINACIÓN */}
+          <div className="es-pagination">
+            {Array.from({ length: Math.ceil(gastos.length/itemsPerPage) }, (_, i) => (
+              <button key={`page-gasto-${i+1}`} onClick={()=>setCurrentPage(i+1)} className={currentPage===i+1?'es-page-button active':'es-page-button'}>{i+1}</button>
+            ))}
           </div>
         </div>
       )}

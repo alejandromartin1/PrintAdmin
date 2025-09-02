@@ -1,11 +1,13 @@
+// routes/clientesRoutes.js
 const express = require('express');
 const router = express.Router();
-const clienteController = require('../controllers/clienteController'); // Asegúrate de que la ruta sea correcta
+const clienteController = require('../controllers/clienteController');
 
-// ponemos las rutas de los clientes
-router.get('/api/clientes', clienteController.getClientes);
-router.post('/api/cliente', clienteController.addCliente);
-router.delete('/api/cliente/:id', clienteController.deleteCliente);
-router.put('/api/cliente/:id', clienteController.updateCliente);
-router.get('/api/clientes/:id', clienteController.getClienteById);
+router.get('/total', clienteController.getTotalClientes); 
+router.get('/:id', clienteController.getClienteById);     
+router.get('/', clienteController.getClientes);           
+router.post('/', clienteController.addCliente);
+router.delete('/:id', clienteController.deleteCliente);
+router.put('/:id', clienteController.updateCliente);
+
 module.exports = router;

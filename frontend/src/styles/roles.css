@@ -1,0 +1,286 @@
+/* src/styles/roles.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #212121;
+}
+
+.roles-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* cambia center por flex-start */
+  padding: 100px 40px 40px 200px; /* agrega espacio arriba (100px) */
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+
+.roles-content {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 42px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 2px solid #dbd9d1; /* amarillo elegante */
+}
+
+.roles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.roles-header h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #d62e2e;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(175, 83, 76, 0.2);
+}
+
+.btn-crear {
+  background: linear-gradient(45deg, #b1100d, #d14545, #b60a0a);
+  background-size: 300% 300%;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 28px;
+  color: #fcf4f4;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+  transition: background-position 0.6s ease, box-shadow 0.3s ease;
+}
+
+.btn-crear:hover {
+  background-position: right;
+  box-shadow: 0 6px 18px rgba(212, 214, 190, 0.5);
+}
+
+.form-crear-rol {
+  margin-bottom: 36px;
+  background: #e9e8e2;
+  border-radius: 14px;
+  padding: 28px 32px;
+  box-shadow: 0 6px 20px rgba(216, 215, 205, 0.15);
+}
+
+.form-crear-rol h2 {
+  color: #d14646;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+
+.error {
+  color: #e53935;
+  font-weight: 600;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.form-crear-rol label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 6px;
+  color: #333;
+}
+
+.form-crear-rol input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 2px solid #d5d6c6;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-crear-rol input[type="text"]:focus {
+  border-color: #d61919;
+  box-shadow: 0 0 8px rgba(160, 89, 67, 0.3);
+}
+
+/* Permisos con estilo pill y verde-amarillo */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 18px 0 26px;
+}
+
+.checkbox-label {
+  background-color: #fafafa;
+  padding: 10px 14px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  border: 2px solid #565750;
+  color: #c72c2c;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(175, 99, 76, 0.1);
+}
+
+.checkbox-label:hover {
+  background-color: #edd7c8;
+  border-color: #d59581;
+  color: #810f07;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+  accent-color: #e53935;
+  cursor: pointer;
+}
+
+.btn-guardar {
+  background-color: #cf2c2c;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(241, 239, 227, 0.4);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-guardar:hover:not(:disabled) {
+  background-color: #d13434;
+  box-shadow: 0 8px 24px rgba(248, 248, 237, 0.6);
+}
+
+.btn-guardar:disabled {
+  background-color: #dddcd4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.tabla-roles {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  margin-top: 16px;
+  font-size: 1rem;
+  color: #212121;
+}
+
+.tabla-roles thead th {
+  background-color: #fffde7;
+  color: #c62828;
+  font-weight: 700;
+  padding: 14px 18px;
+  border-bottom: 3px solid #d1cbbc;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.tabla-roles tbody tr {
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tabla-roles tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(244, 67, 54, 0.2);
+}
+
+.tabla-roles tbody td {
+  padding: 14px 20px;
+  font-weight: 500;
+  color: #424242;
+  text-align: center;
+}
+
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-editar,
+.btn-eliminar {
+  border: none;
+  padding: 8px 16px;
+  font-weight: 600;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-editar {
+  background-color: #dfdad0;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(255, 252, 241, 0.3);
+}
+
+.btn-editar:hover {
+  background-color: #e2d9ca;
+  box-shadow: 0 6px 18px rgba(194, 191, 182, 0.5);
+}
+
+.btn-eliminar {
+  background-color: #e53935;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+}
+
+.btn-eliminar:hover {
+  background-color: #c62828;
+  box-shadow: 0 6px 20px rgba(198, 40, 40, 0.6);
+}
+
+.sin-roles {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 1.2rem;
+  font-style: italic;
+  color: #c5b1b0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 700px) {
+  .roles-content {
+    padding: 24px 20px;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .roles-header h1 {
+    font-size: 1.9rem;
+  }
+
+  .btn-crear {
+    font-size: 0.95rem;
+    padding: 10px 18px;
+  }
+
+  .tabla-roles tbody td {
+    padding: 12px 10px;
+    font-size: 0.9rem;
+  }
+}

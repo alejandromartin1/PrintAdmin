@@ -143,3 +143,27 @@
         width: 100%;
     }
 }
+
+.admin-instruction {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .password-container {
+    position: relative;
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
